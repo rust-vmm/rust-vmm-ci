@@ -73,7 +73,7 @@ steps:
       platform: x86_64.metal
     plugins:
       - docker#v3.0.1:
-          image: "rustvmm/dev:v2"
+          image: "rustvmm/dev:v3"
           always-pull: true
 ```
 
@@ -105,7 +105,7 @@ steps:
       platform: x86_64.metal
     plugins:
       - docker#v3.0.1:
-          image: "rustvmm/dev:v2"
+          image: "rustvmm/dev:v3"
 always-pull: true
 ```
 
@@ -188,7 +188,7 @@ docker run --device=/dev/kvm \
            -it \
            --security-opt seccomp=unconfined \
            --volume $(pwd)/kvm-ioctls:/kvm-ioctls \
-           rustvmm/dev:v2
+           rustvmm/dev:v3
 cd kvm-ioctls/
 pytest --profile=devel tests/test_coverage.py
 ```
