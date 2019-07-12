@@ -17,7 +17,7 @@ To run the integration tests defined in the pipeline as part of the CI:
 # Add rust-vmm-ci as a submodule. This will point to the latest rust-vmm-ci
 # commit from the master branch. The following command will also add a
 # `.gitmodules` file and the `rust-vmm-ci` to the index.
-git submodule add git@github.com:rust-vmm/rust-vmm-ci.git
+git submodule add https://github.com/rust-vmm/rust-vmm-ci.git
 # Commit the changes to your repository so that the CI can run using the
 # rust-vmm-ci pipeline and tests.
 git commit -s -m "Added rust-vmm-ci as submodule"
