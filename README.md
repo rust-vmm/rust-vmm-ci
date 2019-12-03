@@ -23,9 +23,13 @@ git submodule add https://github.com/rust-vmm/rust-vmm-ci.git
 git commit -s -m "Added rust-vmm-ci as submodule"
 ```
 
-2. Create the coverage test configuration file named coverage_config.json in
-the root of the repository. One example of the configuration file can be found
-in [coverage_config.json.sample](coverage_config.json.sample).
+2. Create the coverage test configuration file named coverage_config_ARCH.json in
+the root of the repository, where ARCH is the architecture of the machine.
+There are two coverage test configuration files, one per each platform.
+The example of the configuration file for x86_64 architecture can be found
+in [coverage_config_x86_64.json.sample](coverage_config_x86_64.json.sample),
+and the example of the configuration file for aarch64 architecture can be found
+in [coverage_config_aarch64.json.sample](coverage_config_aarch64.json.sample).
 
 The json must have the following fields:
 - *coverage_score*: The coverage of the repository.
@@ -73,7 +77,7 @@ steps:
       platform: x86_64.metal
     plugins:
       - docker#v3.0.1:
-          image: "rustvmm/dev:v3"
+          image: "rustvmm/dev:v5"
           always-pull: true
 ```
 
@@ -105,7 +109,7 @@ steps:
       platform: x86_64.metal
     plugins:
       - docker#v3.0.1:
-          image: "rustvmm/dev:v3"
+          image: "rustvmm/dev:v5"
 always-pull: true
 ```
 
@@ -188,9 +192,9 @@ docker run --device=/dev/kvm \
            -it \
            --security-opt seccomp=unconfined \
            --volume $(pwd)/kvm-ioctls:/kvm-ioctls \
-           rustvmm/dev:v3
+           rustvmm/dev:v5
 cd kvm-ioctls/
-pytest --profile=devel tests/test_coverage.py
+pytest --profile=devel rust-vmm-ci/integration_tests/test_coverage.py
 ```
 
 If the PR coverage is higher than the upstream coverage, the coverage file
