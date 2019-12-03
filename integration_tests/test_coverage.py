@@ -2,14 +2,16 @@
 # SPDX-License-Identifier: Apache-2.0
 """Test the coverage and update the threshold when coverage is increased."""
 
-import json, os, re, shutil, subprocess
+import json, os, re, shutil, subprocess, platform
 import pytest
 
 from utils import get_repo_root_path
 
 REPO_ROOT_PATH = get_repo_root_path()
-COVERAGE_CONFIG_PATH = os.path.join(REPO_ROOT_PATH, "coverage_config.json")
-
+if platform.machine() == "x86_64":
+    COVERAGE_CONFIG_PATH = os.path.join(REPO_ROOT_PATH, "coverage_config_x86_64.json")
+elif platform.machine() == "aarch64":
+    COVERAGE_CONFIG_PATH = os.path.join(REPO_ROOT_PATH, "coverage_config_aarch64.json")
 
 def _read_test_config():
     """
