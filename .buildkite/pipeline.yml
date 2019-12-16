@@ -134,19 +134,6 @@ steps:
           image: "rustvmm/dev:v3"
           always-pull: true
 
-  - label: "clippy-arm"
-    commands:
-     - cargo clippy --all -- -D warnings
-    retry:
-      automatic: false
-    agents:
-      platform: arm.metal
-      os: linux
-    plugins:
-      - docker#v3.0.1:
-          image: "rustvmm/dev:v3"
-          always-pull: true
-
   - label: "check-warnings-x86"
     commands:
       - RUSTFLAGS="-D warnings" cargo check --all-targets
