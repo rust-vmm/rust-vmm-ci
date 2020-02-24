@@ -17,11 +17,23 @@ def pytest_addoption(parser):
             PROFILE_DEVEL
         )
     )
+    parser.addoption(
+        "--no-cleanup",
+        action="store_true",
+        default=False,
+        help="Keep the coverage report in `kcov_output` directory. If this flag is not provided, "
+             "both coverage related directories are removed."
+    )
 
 
 @pytest.fixture
 def profile(request):
     return request.config.getoption("--profile")
+
+
+@pytest.fixture
+def no_cleanup(request):
+    return request.config.getoption("--no-cleanup")
 
 
 # This is used for defining global variables in pytest.

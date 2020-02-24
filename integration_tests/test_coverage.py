@@ -37,7 +37,7 @@ def _write_coverage_config(coverage_config):
         json.dump(coverage_config, outfile)
 
 
-def _get_current_coverage(coverage_config):
+def _get_current_coverage(coverage_config, no_cleanup):
     """Helper function that returns the coverage computed with kcov."""
     kcov_output_dir = os.path.join(REPO_ROOT_PATH, "kcov_output")
 
@@ -92,15 +92,17 @@ def _get_current_coverage(coverage_config):
         )[0])
 
     # Remove coverage related directories.
-    shutil.rmtree(kcov_output_dir, ignore_errors=True)
+    # If user provided `--no-cleanup` flag, `kcov_output_dir` should not be removed.
+    if not no_cleanup:
+        shutil.rmtree(kcov_output_dir, ignore_errors=True)
     shutil.rmtree(kcov_build_dir, ignore_errors=True)
 
     return coverage
 
 
-def test_coverage(profile):
+def test_coverage(profile, no_cleanup):
     coverage_config = _read_test_config()
-    current_coverage = _get_current_coverage(coverage_config)
+    current_coverage = _get_current_coverage(coverage_config, no_cleanup)
     previous_coverage = coverage_config["coverage_score"]
     if previous_coverage < current_coverage:
         if profile == pytest.profile_ci:
