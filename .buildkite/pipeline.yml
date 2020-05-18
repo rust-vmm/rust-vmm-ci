@@ -179,6 +179,7 @@ steps:
   - label: "coverage-arm"
     commands:
       - pytest rust-vmm-ci/integration_tests/test_coverage.py
+    skip: "Currently this test is very unreliable. Kcov on aarch64 needs fixing."
     retry:
       automatic: false
     agents:
