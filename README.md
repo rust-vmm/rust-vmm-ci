@@ -77,7 +77,7 @@ steps:
       platform: x86_64.metal
     plugins:
       - docker#v3.0.1:
-          image: "rustvmm/dev:v5"
+          image: "rustvmm/dev:v${LATEST}"
           always-pull: true
 ```
 
@@ -109,7 +109,7 @@ steps:
       platform: x86_64.metal
     plugins:
       - docker#v3.0.1:
-          image: "rustvmm/dev:v5"
+          image: "rustvmm/dev:${LATEST}"
 always-pull: true
 ```
 
@@ -191,9 +191,9 @@ coverage before submitting a PR, run the coverage test:
 docker run --device=/dev/kvm \
            -it \
            --security-opt seccomp=unconfined \
-           --volume $(pwd)/kvm-ioctls:/kvm-ioctls \
-           rustvmm/dev:v5
-cd kvm-ioctls/
+           --volume $(pwd)/${CRATE}:/${CRATE} \
+           rustvmm/dev:v${LATEST}
+cd ${CRATE}
 pytest --profile=devel rust-vmm-ci/integration_tests/test_coverage.py
 ```
 
@@ -209,4 +209,66 @@ PR.
 
 **NOTE:** The coverage file is only updated in the `devel` test profile. In
 the `ci` profile the coverage test will fail if the current coverage is higher
-than the coverage reported in [tests/coverage](tests/coverage)
+than the coverage reported in [tests/coverage](tests/coverage).
+
+### Performance tests
+
+`rust-vmm-ci` includes an integration test that can run a battery of
+benchmarks at every pull request, comparing the results with the tip of the
+upstream `master` branch. The test is not included in the default Buildkite
+pipeline. Each crate that requires the test to be run as part of the CI must
+add a [custom pipeline](#custom-pipeline).
+
+An example of a pipeline that runs the test for ARM platforms and prints the
+results:
+
+```yaml
+steps:
+  - label: "bench-aarch64"
+    commands:
+      - pytest rust-vmm-ci/integration_tests/test_benchmark.py -s
+    retry:
+      automatic: false
+    agents:
+      platform: arm.metal
+    plugins:
+      - docker#v3.0.1:
+          image: "rustvmm/dev:v${LATEST}"
+          always-pull: true
+```
+
+The test requires [`criterion`](https://github.com/bheisler/criterion.rs)
+benchmarks to be exported by the crate. `criterion` collects performance
+results by running a function for a user-configured number of iterations,
+timing the runs, and applying statistics. The individual benchmark tests must
+be added in the crate. They can be run outside the CI with:
+
+```bash
+cargo bench [--all-features] OR [--features <features>]
+```
+
+`rust-vmm-ci` uses [`critcmp`(https://github.com/BurntSushi/critcmp) to
+compare the results yielded by `cargo bench --all-features` on the PR being
+tested with those from the tip of the upstream `master` branch. The test
+runs `cargo bench` twice, once on the current `HEAD`, then again after
+`git checkout origin/master`. `critcmp` takes care of the comparison, making
+use of `criterion`'s stable format for
+[output files](https://bheisler.github.io/criterion.rs/book/user_guide/csv_output.html).
+The results are printed to `stdout` and can be visually inspected in the
+pipeline output. In its present form, the test cannot fail.
+
+To run the test locally:
+
+```bash
+docker run --device=/dev/kvm \
+           -it \
+           --security-opt seccomp=unconfined \
+           --volume $(pwd)/${CRATE}:/${CRATE} \
+           rustvmm/dev:v${LATEST}
+cd ${CRATE}
+pytest rust-vmm-ci/integration_tests/test_benchmark.py -s
+```
+
+Note that performance is highly dependent on the underlying platform that the
+tests are running on. The raw numbers obtained are likely to differ from their
+counterparts on a CI instance.
