@@ -190,3 +190,16 @@ steps:
           privileged: true
           image: "rustvmm/dev:v6"
           always-pull: true
+
+  - label: "commit-format"
+    commands:
+      - pytest rust-vmm-ci/integration_tests/test_commit_format.py
+    retry:
+      automatic: false
+    agents:
+      os: linux
+    plugins:
+      - docker#v3.0.1:
+          image: "rustvmm/dev:v6"
+          always-pull: true
+          propagate-environment: true
