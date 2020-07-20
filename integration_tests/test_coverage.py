@@ -13,6 +13,7 @@ if platform.machine() == "x86_64":
 elif platform.machine() == "aarch64":
     COVERAGE_CONFIG_PATH = os.path.join(REPO_ROOT_PATH, "coverage_config_aarch64.json")
 
+
 def _read_test_config():
     """
     Reads the config of the coverage for the repository being tested.
