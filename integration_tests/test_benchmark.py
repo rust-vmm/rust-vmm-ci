@@ -22,6 +22,10 @@ def test_bench():
 
     # Move to upstream tip.
     subprocess.run(
+        "git fetch {} {}".format(REMOTE, BRANCH),
+        shell=True, check=True
+    )
+    subprocess.run(
         "git checkout {}/{}".format(REMOTE, BRANCH),
         shell=True, check=True
     )
