@@ -3,12 +3,14 @@
 """Test the commit message format."""
 
 import os
+import subprocess
 
 from utils import get_cmd_output
 
 COMMIT_TITLE_MAX_LEN = 50
 COMMIT_BODY_LINE_MAX_LEN = 72
 BASE_BRANCH = os.environ['BUILDKITE_PULL_REQUEST_BASE_BRANCH']
+BASE_REPO = os.environ['BUILDKITE_REPO']
 
 
 def test_commit_format():
@@ -19,10 +21,13 @@ def test_commit_format():
     [https://www.midori-global.com/blog/2018/04/02/git-50-72-rule]
     and if commits are signed.
     """
+    # Fetch the upstream repository.
+    fetch_base_cmd = "git fetch {} {}".format(BASE_REPO, BASE_BRANCH)
+    subprocess.run(fetch_base_cmd, shell=True, check=True)
     # Get hashes of PR's commits in their abbreviated form for
     # a prettier printing.
     shas_cmd = "git log --no-merges --pretty=%h --no-decorate " \
-               "{}..HEAD".format(BASE_BRANCH)
+               "FETCH_HEAD..HEAD"
     shas = get_cmd_output(shas_cmd)
 
     for sha in shas.split():
