@@ -238,7 +238,18 @@ steps:
 ```
 
 The test requires [`criterion`](https://github.com/bheisler/criterion.rs)
-benchmarks to be exported by the crate. `criterion` collects performance
+benchmarks to be exported by the crate. The test expects the entry point
+into the performance benchmarks to be named `main`. In other words, the
+following configuration is expected in `Cargo.toml`:
+```toml
+[[bench]]
+name = "main"
+```
+
+All benchmarks need to be collected in a main.rs file placed in `benches/`.
+
+
+`criterion` collects performance
 results by running a function for a user-configured number of iterations,
 timing the runs, and applying statistics. The individual benchmark tests must
 be added in the crate. They can be run outside the CI with:
