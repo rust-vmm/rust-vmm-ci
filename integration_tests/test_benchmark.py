@@ -23,18 +23,14 @@ def test_bench():
     # For this purpose, we need to explicitly check the return code.
     assert return_code == 0, "stdout: {}\n stderr: {}".format(stdout, stderr)
 
-    # Move to upstream tip.
-    subprocess.run(
-        "git fetch {} {}".format(REMOTE, BRANCH),
-        shell=True, check=True
-    )
-    subprocess.run(
-        "git checkout {}/{}".format(REMOTE, BRANCH),
-        shell=True, check=True
-    )
-
     # Get numbers from upstream tip, without the changes from the current PR.
+    _checkout_master_branch()
     return_code, stdout, stderr = _run_cargo_bench("before")
+
+    # Before checking any results, let's just go back to the PR branch.
+    # This way we make sure that the cleanup always happens even if the test fails.
+    _checkout_pr_branch()
+
     if return_code == 0:
         # In case this benchmark also ran successfully, we can call critcmp and compare the results.
         _run_critcmp()
@@ -71,3 +67,21 @@ def _run_critcmp():
     print(p.stdout.decode('utf-8'))
     print('ERRORS')
     print(p.stderr.decode('utf-8'))
+
+def _checkout_master_branch():
+    subprocess.run(
+        "git fetch {} {}".format(REMOTE, BRANCH),
+        shell=True, check=True
+    )
+    subprocess.run(
+        "git checkout {}/{}".format(REMOTE, BRANCH),
+        shell=True, check=True
+    )
+
+def _checkout_pr_branch():
+    subprocess.run(
+        "git checkout -",
+        shell=True, check=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE
+    )
