@@ -7,29 +7,32 @@ import pytest
 
 from utils import get_repo_root_path
 
-# Buildkite clones with the remote name "origin". It's non-configurable.
-REMOTE = "origin"
-# Possibly prone to changes.
-BRANCH = "master"
-
+# Repository being tested (as configured with Buildkite).
+UPSTREAM_REPO_URL = os.environ['BUILDKITE_REPO']
+# Base branch as configured with Buildkite.
+BASE_BRANCH = os.environ['BUILDKITE_PULL_REQUEST_BASE_BRANCH']
+# File used for saving the results of cargo bench when running on the PR branch.
+PR_BENCH_RESULTS_FILE = "pr_bench_results"
+# File used for saving the results of cargo bench when running on the upstream branch.
+UPSTREAM_BENCH_RESULTS_FILE = "upstream_bench_results"
 
 def test_bench():
     """Runs benchmarks before and after and compares the results."""
     os.chdir(get_repo_root_path())
 
     # Get numbers for current HEAD.
-    return_code, stdout, stderr = _run_cargo_bench("after")
+    return_code, stdout, stderr = _run_cargo_bench(PR_BENCH_RESULTS_FILE)
     # Even if it is the first time this test is run, the benchmark tests should pass.
     # For this purpose, we need to explicitly check the return code.
     assert return_code == 0, "stdout: {}\n stderr: {}".format(stdout, stderr)
 
     # Get numbers from upstream tip, without the changes from the current PR.
-    _checkout_master_branch()
-    return_code, stdout, stderr = _run_cargo_bench("before")
+    _git_checkout_upstream_branch()
+    return_code, stdout, stderr = _run_cargo_bench(UPSTREAM_BENCH_RESULTS_FILE)
 
     # Before checking any results, let's just go back to the PR branch.
     # This way we make sure that the cleanup always happens even if the test fails.
-    _checkout_pr_branch()
+    _git_checkout_pr_branch()
 
     if return_code == 0:
         # In case this benchmark also ran successfully, we can call critcmp and compare the results.
@@ -58,7 +61,7 @@ def _run_cargo_bench(baseline):
 
 def _run_critcmp():
     p = subprocess.run(
-        "critcmp before after",
+        "critcmp {} {}".format(UPSTREAM_BENCH_RESULTS_FILE, PR_BENCH_RESULTS_FILE),
         shell=True, check=True,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE
@@ -68,17 +71,17 @@ def _run_critcmp():
     print('ERRORS')
     print(p.stderr.decode('utf-8'))
 
-def _checkout_master_branch():
+def _git_checkout_upstream_branch():
     subprocess.run(
-        "git fetch {} {}".format(REMOTE, BRANCH),
+        "git fetch {} {}".format(UPSTREAM_REPO_URL, BASE_BRANCH),
         shell=True, check=True
     )
     subprocess.run(
-        "git checkout {}/{}".format(REMOTE, BRANCH),
+        "git checkout FETCH_HEAD",
         shell=True, check=True
     )
 
-def _checkout_pr_branch():
+def _git_checkout_pr_branch():
     subprocess.run(
         "git checkout -",
         shell=True, check=True,
