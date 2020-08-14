@@ -39,7 +39,7 @@ def _write_coverage_config(coverage_config):
 
 def _get_current_coverage(coverage_config):
     """Helper function that returns the coverage computed with kcov."""
-    kcov_ouput_dir = os.path.join(REPO_ROOT_PATH, "kcov_output")
+    kcov_output_dir = os.path.join(REPO_ROOT_PATH, "kcov_output")
 
     # By default the build output for kcov and unit tests are both in the debug
     # directory. This causes some linker errors that I haven't investigated.
@@ -49,7 +49,7 @@ def _get_current_coverage(coverage_config):
 
     # Remove kcov output and build directory to be sure we are always working
     # on a clean environment.
-    shutil.rmtree(kcov_ouput_dir, ignore_errors=True)
+    shutil.rmtree(kcov_output_dir, ignore_errors=True)
     shutil.rmtree(kcov_build_dir, ignore_errors=True)
 
     exclude_pattern = (
@@ -74,7 +74,7 @@ def _get_current_coverage(coverage_config):
                "--verify".format(
         kcov_build_dir,
         additional_kcov_param,
-        kcov_ouput_dir,
+        kcov_output_dir,
         exclude_region,
         exclude_pattern
     )
@@ -82,7 +82,7 @@ def _get_current_coverage(coverage_config):
     subprocess.run(kcov_cmd, shell=True, check=True)
 
     # Read the coverage reported by kcov.
-    coverage_file = os.path.join(kcov_ouput_dir, 'index.js')
+    coverage_file = os.path.join(kcov_output_dir, 'index.js')
     with open(coverage_file) as cov_output:
         coverage = float(re.findall(
             r'"covered":"(\d+\.\d)"',
@@ -90,7 +90,7 @@ def _get_current_coverage(coverage_config):
         )[0])
 
     # Remove coverage related directories.
-    shutil.rmtree(kcov_ouput_dir, ignore_errors=True)
+    shutil.rmtree(kcov_output_dir, ignore_errors=True)
     shutil.rmtree(kcov_build_dir, ignore_errors=True)
 
     return coverage

@@ -203,3 +203,16 @@ steps:
           image: "rustvmm/dev:v6"
           always-pull: true
           propagate-environment: true
+
+  - label: "cargo-audit"
+    commands:
+      - cargo audit
+    retry:
+      automatic: false
+    agents:
+      os: linux
+    plugins:
+      - docker#v3.0.1:
+          image: "rustvmm/dev:v6"
+          always-pull: true
+          propagate-environment: true
