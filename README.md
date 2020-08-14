@@ -82,7 +82,7 @@ steps:
 ```
 
 To see all steps in the pipeline check the
-[.buikite/pipeline.yml](.buildkite/pipeline.yml) file.
+[.buildkite/pipeline.yml](.buildkite/pipeline.yml) file.
 
 ### Custom Pipeline
 
@@ -156,7 +156,7 @@ being downloaded.
 ## Integration Tests
 
 In addition to the one-liner tests defined in the
-[Builkite Pipeline](#buildkite-pipeline), the rust-vmm-ci also has more
+[Buildkite Pipeline](#buildkite-pipeline), the rust-vmm-ci also has more
 complex tests defined in [integration_tests](integration_tests).
 
 ### Test Profiles
