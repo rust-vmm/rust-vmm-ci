@@ -79,7 +79,9 @@ def _get_current_coverage(coverage_config):
         exclude_pattern
     )
 
-    subprocess.run(kcov_cmd, shell=True, check=True)
+    # Pytest closes stdin by default, but some tests might need it to be open.
+    # In the future, should the need arise, we can feed custom data to stdin.
+    subprocess.run(kcov_cmd, shell=True, check=True, input=b'')
 
     # Read the coverage reported by kcov.
     coverage_file = os.path.join(kcov_output_dir, 'index.js')
