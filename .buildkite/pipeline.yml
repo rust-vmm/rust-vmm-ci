@@ -206,7 +206,7 @@ steps:
 
   - label: "cargo-audit"
     commands:
-      - pytest rust-vmm-ci/integration_tests/test_cargo_audit.py
+      - pytest rust-vmm-ci/integration_tests/test_cargo_audit.py -s
     retry:
       automatic: false
     agents:
