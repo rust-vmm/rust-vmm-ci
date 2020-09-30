@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
-from subprocess import Popen, PIPE, STDOUT
-
+import subprocess 
 
 def test_cargo_audit():
     cmd = 'cargo-audit'
