@@ -1,10 +1,8 @@
+# SPDX-License-Identifier: Apache-2.0
 from subprocess import Popen, PIPE, STDOUT
 
 
 def test_cargo_audit():
-    cmd = 'cargo-audit audit'
-    prs = Popen("{}".format(cmd), shell=True, stdin=PIPE,
-            stdout=PIPE, stderr=STDOUT, close_fds=True)
+    cmd = 'cargo-audit'
+    prs = subprocess.run("{}".format(cmd), shell=True, check=True)
     stdout, nothing = prs.communicate()
-    print(stdout)
-
