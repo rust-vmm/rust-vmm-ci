@@ -35,15 +35,15 @@ def test_commit_format():
         message = get_cmd_output(message_cmd)
         message_lines = message.split("\n")
         assert len(message_lines) >= 3,\
-            "The commit should contain at least 3 lines: title, blank " \
-            "line and a sign-off one. Please check: " \
-            "https://www.midori-global.com/blog/2018/04/02/git-50-72-rule."
+            "The commit '{}' should contain at least 3 lines: title, " \
+            "blank line and a sign-off one. Please check: " \
+            "https://www.midori-global.com/blog/2018/04/02/git-50-72-rule."\
+            .format(sha)
         title = message_lines[0]
-        assert message_lines[1] == "", "Commit title is divided into " \
-                                       "multiple lines. Please keep it " \
-                                       "one line long and make sure you " \
-                                       "add a blank line between title " \
-                                       "and description."
+        assert message_lines[1] == "",\
+            "For commit '{}', title is divided into multiple lines. " \
+            "Please keep it one line long and make sure you add a blank " \
+            "line between title and description.".format(sha)
         assert len(title) <= COMMIT_TITLE_MAX_LEN,\
             "For commit '{}', title exceeds {} chars. " \
             "Please keep it shorter.".format(sha, COMMIT_TITLE_MAX_LEN)
