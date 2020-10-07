@@ -67,7 +67,7 @@ steps:
 
   - label: "unittests-gnu-x86"
     commands:
-     - cargo test --all-features
+     - cargo test --all-features --workspace
     retry:
       automatic: false
     agents:
@@ -81,7 +81,7 @@ steps:
 
   - label: "unittests-gnu-arm"
     commands:
-     - cargo test --all-features
+     - cargo test --all-features --workspace
     retry:
       automatic: false
     agents:
@@ -95,7 +95,7 @@ steps:
 
   - label: "unittests-musl-x86"
     command:
-     - cargo test --all-features --target x86_64-unknown-linux-musl
+     - cargo test --all-features --workspace --target x86_64-unknown-linux-musl
     retry:
       automatic: false
     agents:
@@ -109,7 +109,7 @@ steps:
 
   - label: "unittests-musl-arm"
     command:
-     - cargo test --all-features --target aarch64-unknown-linux-musl
+     - cargo test --all-features --workspace --target aarch64-unknown-linux-musl
     retry:
       automatic: false
     agents:
