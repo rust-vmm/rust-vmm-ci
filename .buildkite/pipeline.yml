@@ -207,7 +207,7 @@ steps:
   - label: "cargo-audit"
     commands:
       - cargo audit -q
-    skip: "Skipping until we move cargo audit to v0.12.0. See https://github.com/RustSec/advisory-db/issues/414#issuecomment-702479926"
+    skip: "Skipping until we move cargo audit to v0.12.0"
     retry:
       automatic: false
     agents:
