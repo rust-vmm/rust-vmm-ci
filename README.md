@@ -270,7 +270,7 @@ outside the CI with:
 cargo bench [--all-features] OR [--features <features>]
 ```
 
-`rust-vmm-ci` uses [`critcmp`(https://github.com/BurntSushi/critcmp) to
+`rust-vmm-ci` uses [`critcmp`](https://github.com/BurntSushi/critcmp) to
 compare the results yielded by `cargo bench --all-features` on the PR being
 tested with those from the tip of the upstream `master` branch. The test
 runs `cargo bench` twice, once on the current `HEAD`, then again after
