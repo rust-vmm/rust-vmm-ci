@@ -194,6 +194,7 @@ steps:
   - label: "commit-format"
     commands:
       - pytest rust-vmm-ci/integration_tests/test_commit_format.py
+    if: build.env("BUILDKITE_REPO") !~ /^git@/
     retry:
       automatic: false
     agents:
