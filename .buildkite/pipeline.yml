@@ -78,6 +78,8 @@ steps:
           privileged: true
           image: "rustvmm/dev:v8"
           always-pull: true
+          volumes:
+            - "/tmp:/tmp"
 
   - label: "unittests-gnu-arm"
     commands:
@@ -92,6 +94,8 @@ steps:
           privileged: true
           image: "rustvmm/dev:v8"
           always-pull: true
+          volumes:
+            - "/tmp:/tmp"
 
   - label: "unittests-musl-x86"
     command:
@@ -106,6 +110,8 @@ steps:
           privileged: true
           image: "rustvmm/dev:v8"
           always-pull: true
+          volumes:
+            - "/tmp:/tmp"
 
   - label: "unittests-musl-arm"
     command:
@@ -120,6 +126,8 @@ steps:
           privileged: true
           image: "rustvmm/dev:v8"
           always-pull: true
+          volumes:
+            - "/tmp:/tmp"
 
   - label: "clippy-x86"
     commands:
@@ -175,6 +183,8 @@ steps:
           privileged: true
           image: "rustvmm/dev:v8"
           always-pull: true
+          volumes:
+            - "/tmp:/tmp"
 
   - label: "coverage-arm"
     commands:
@@ -190,6 +200,8 @@ steps:
           privileged: true
           image: "rustvmm/dev:v8"
           always-pull: true
+          volumes:
+            - "/tmp:/tmp"
 
   - label: "commit-format"
     commands:
