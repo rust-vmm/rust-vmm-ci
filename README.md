@@ -204,7 +204,7 @@ docker run --device=/dev/kvm \
            -it \
            --security-opt seccomp=unconfined \
            --volume $(pwd)/${crate}:/${crate} \
-           rustvmm/dev:v{$container_version}
+           rustvmm/dev:v${container_version}
 cd ${crate}
 pytest --profile=devel rust-vmm-ci/integration_tests/test_coverage.py
 ```
