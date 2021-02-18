@@ -11,7 +11,7 @@ steps:
       os: linux
     plugins:
       - docker#v3.0.1:
-          image: "rustvmm/dev:v8"
+          image: "rustvmm/dev:v11"
           always-pull: true
 
   - label: "build-gnu-arm"
@@ -24,7 +24,7 @@ steps:
       os: linux
     plugins:
       - docker#v3.0.1:
-          image: "rustvmm/dev:v8"
+          image: "rustvmm/dev:v11"
           always-pull: true
 
   - label: "build-musl-x86"
@@ -37,7 +37,7 @@ steps:
       os: linux
     plugins:
       - docker#v3.0.1:
-          image: "rustvmm/dev:v8"
+          image: "rustvmm/dev:v11"
           always-pull: true
 
   - label: "build-musl-arm"
@@ -50,7 +50,7 @@ steps:
       os: linux
     plugins:
       - docker#v3.0.1:
-          image: "rustvmm/dev:v8"
+          image: "rustvmm/dev:v11"
           always-pull: true
 
   - label: "style"
@@ -62,7 +62,7 @@ steps:
       os: linux
     plugins:
       - docker#v3.0.1:
-          image: "rustvmm/dev:v8"
+          image: "rustvmm/dev:v11"
           always-pull: true
 
   - label: "unittests-gnu-x86"
@@ -76,7 +76,7 @@ steps:
     plugins:
       - docker#v3.0.1:
           privileged: true
-          image: "rustvmm/dev:v8"
+          image: "rustvmm/dev:v11"
           always-pull: true
           volumes:
             - "/tmp:/tmp"
@@ -92,7 +92,7 @@ steps:
     plugins:
       - docker#v3.0.1:
           privileged: true
-          image: "rustvmm/dev:v8"
+          image: "rustvmm/dev:v11"
           always-pull: true
           volumes:
             - "/tmp:/tmp"
@@ -108,7 +108,7 @@ steps:
     plugins:
       - docker#v3.0.1:
           privileged: true
-          image: "rustvmm/dev:v8"
+          image: "rustvmm/dev:v11"
           always-pull: true
           volumes:
             - "/tmp:/tmp"
@@ -124,7 +124,7 @@ steps:
     plugins:
       - docker#v3.0.1:
           privileged: true
-          image: "rustvmm/dev:v8"
+          image: "rustvmm/dev:v11"
           always-pull: true
           volumes:
             - "/tmp:/tmp"
@@ -139,7 +139,7 @@ steps:
       os: linux
     plugins:
       - docker#v3.0.1:
-          image: "rustvmm/dev:v8"
+          image: "rustvmm/dev:v11"
           always-pull: true
 
   - label: "check-warnings-x86"
@@ -153,7 +153,7 @@ steps:
     plugins:
       - docker#v3.0.1:
           privileged: true
-          image: "rustvmm/dev:v8"
+          image: "rustvmm/dev:v11"
           always-pull: true
 
   - label: "check-warnings-arm"
@@ -167,7 +167,7 @@ steps:
     plugins:
       - docker#v3.0.1:
           privileged: true
-          image: "rustvmm/dev:v8"
+          image: "rustvmm/dev:v11"
           always-pull: true
 
   - label: "coverage-x86"
@@ -181,7 +181,7 @@ steps:
     plugins:
       - docker#v3.0.1:
           privileged: true
-          image: "rustvmm/dev:v8"
+          image: "rustvmm/dev:v11"
           always-pull: true
           volumes:
             - "/tmp:/tmp"
@@ -198,7 +198,7 @@ steps:
     plugins:
       - docker#v3.0.1:
           privileged: true
-          image: "rustvmm/dev:v8"
+          image: "rustvmm/dev:v11"
           always-pull: true
           volumes:
             - "/tmp:/tmp"
@@ -213,7 +213,7 @@ steps:
       os: linux
     plugins:
       - docker#v3.0.1:
-          image: "rustvmm/dev:v8"
+          image: "rustvmm/dev:v11"
           always-pull: true
           propagate-environment: true
 
@@ -226,6 +226,6 @@ steps:
       os: linux
     plugins:
       - docker#v3.0.1:
-          image: "rustvmm/dev:v8"
+          image: "rustvmm/dev:v11"
           always-pull: true
           propagate-environment: true
