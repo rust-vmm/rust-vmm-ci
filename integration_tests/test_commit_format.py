@@ -31,6 +31,11 @@ def test_commit_format():
     shas = get_cmd_output(shas_cmd)
 
     for sha in shas.split():
+        # Do not enforce the commit rules when the committer is dependabot.
+        author_cmd = "git show -s --format='%ae'"
+        author = get_cmd_output(author_cmd)
+        if "dependabot" in author:
+            continue
         message_cmd = "git show --pretty=format:%B -s " + sha
         message = get_cmd_output(message_cmd)
         message_lines = message.split("\n")
