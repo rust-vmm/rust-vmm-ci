@@ -80,6 +80,7 @@ steps:
           always-pull: true
           volumes:
             - "/tmp:/tmp"
+          devices: [ "/dev/vhost-vdpa-0" ]
 
   - label: "unittests-gnu-arm"
     commands:
@@ -96,6 +97,7 @@ steps:
           always-pull: true
           volumes:
             - "/tmp:/tmp"
+          devices: [ "/dev/vhost-vdpa-0" ]
 
   - label: "unittests-musl-x86"
     command:
@@ -112,6 +114,7 @@ steps:
           always-pull: true
           volumes:
             - "/tmp:/tmp"
+          devices: [ "/dev/vhost-vdpa-0" ]
 
   - label: "unittests-musl-arm"
     command:
@@ -128,6 +131,7 @@ steps:
           always-pull: true
           volumes:
             - "/tmp:/tmp"
+          devices: [ "/dev/vhost-vdpa-0" ]
 
   - label: "clippy-x86"
     commands:
@@ -185,6 +189,7 @@ steps:
           always-pull: true
           volumes:
             - "/tmp:/tmp"
+          devices: [ "/dev/vhost-vdpa-0" ]
 
   - label: "coverage-arm"
     commands:
@@ -202,6 +207,7 @@ steps:
           always-pull: true
           volumes:
             - "/tmp:/tmp"
+          devices: [ "/dev/vhost-vdpa-0" ]
 
   - label: "commit-format"
     commands:
