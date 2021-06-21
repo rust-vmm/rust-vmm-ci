@@ -32,7 +32,7 @@ def test_commit_format():
 
     for sha in shas.split():
         # Do not enforce the commit rules when the committer is dependabot.
-        author_cmd = "git show -s --format='%ae'"
+        author_cmd = "git show -s --format='%ae' " + sha
         author = get_cmd_output(author_cmd)
         if "dependabot" in author:
             continue
