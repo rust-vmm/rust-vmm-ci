@@ -1,0 +1,61 @@
+{
+  "test_list": [
+    {
+      "test_name": "build-gnu",
+      "command": "cargo build --release",
+      "platform": ["x86_64", "aarch64"]
+    },
+    {
+      "test_name": "build-musl",
+      "command": "cargo build --release --target {target_platform}-unknown-linux-musl",
+      "platform": ["x86_64", "aarch64"]
+    },
+    {
+      "test_name": "style",
+      "command": "cargo fmt --all -- --check",
+      "platform": ["x86_64"]
+    },
+    {
+      "test_name": "unittests-gnu",
+      "command": "cargo test --all-features --workspace",
+      "platform": ["x86_64", "aarch64"]
+    },
+    {
+      "test_name": "unittests-musl",
+      "command": "cargo test --all-features --workspace --target {target_platform}-unknown-linux-musl",
+      "platform": ["x86_64", "aarch64"]
+    },
+    {
+      "test_name": "clippy",
+      "command": "cargo clippy --workspace --bins --examples --benches --all-features -- -D warnings",
+      "platform": ["x86_64", "aarch64"]
+    },
+    {
+      "test_name": "check-warnings",
+      "command": "RUSTFLAGS=\"-D warnings\" cargo check --all-targets --all-features --workspace",
+      "platform": ["x86_64", "aarch64"]
+    },
+    {
+      "test_name": "coverage",
+      "command": "pytest rust-vmm-ci/integration_tests/test_coverage.py",
+      "docker_plugin": {
+        "privileged": true
+      },
+      "platform": ["x86_64"]
+    },
+    {
+      "test_name": "commit-format",
+      "command": "pytest rust-vmm-ci/integration_tests/test_commit_format.py",
+      "conditional": "build.env(\"BUILDKITE_REPO\") !~ /^git@/",
+      "docker_plugin": {
+        "propagate-environment": true
+      },
+      "platform": ["x86_64"]
+    },
+    {
+      "test_name": "cargo-audit",
+      "command": "cargo audit -q",
+      "platform": ["x86_64"]
+    }
+  ]
+}
