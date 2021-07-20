@@ -14,8 +14,8 @@
       },
       "plugins": [
         {
-          "docker#v3.8.0": {
-            "image": "rustvmm/dev:v12",
+          "docker#{DOCKER_PLUGIN_VERSION}": {
+            "image": "rustvmm/dev:{CONTAINER_VERSION}",
             "always-pull": true
           }
         }
@@ -35,8 +35,8 @@
       },
       "plugins": [
         {
-          "docker#v3.8.0": {
-            "image": "rustvmm/dev:v12",
+          "docker#{DOCKER_PLUGIN_VERSION}": {
+            "image": "rustvmm/dev:{CONTAINER_VERSION}",
             "always-pull": true
           }
         }
@@ -56,8 +56,8 @@
       },
       "plugins": [
         {
-          "docker#v3.8.0": {
-            "image": "rustvmm/dev:v12",
+          "docker#{DOCKER_PLUGIN_VERSION}": {
+            "image": "rustvmm/dev:{CONTAINER_VERSION}",
             "always-pull": true
           }
         }
@@ -77,8 +77,8 @@
       },
       "plugins": [
         {
-          "docker#v3.8.0": {
-            "image": "rustvmm/dev:v12",
+          "docker#{DOCKER_PLUGIN_VERSION}": {
+            "image": "rustvmm/dev:{CONTAINER_VERSION}",
             "always-pull": true
           }
         }
@@ -98,8 +98,8 @@
       },
       "plugins": [
         {
-          "docker#v3.8.0": {
-            "image": "rustvmm/dev:v12",
+          "docker#{DOCKER_PLUGIN_VERSION}": {
+            "image": "rustvmm/dev:{CONTAINER_VERSION}",
             "always-pull": true
           }
         }
@@ -119,8 +119,8 @@
       },
       "plugins": [
         {
-          "docker#v3.8.0": {
-            "image": "rustvmm/dev:v12",
+          "docker#{DOCKER_PLUGIN_VERSION}": {
+            "image": "rustvmm/dev:{CONTAINER_VERSION}",
             "always-pull": true
           }
         }
@@ -140,8 +140,8 @@
       },
       "plugins": [
         {
-          "docker#v3.8.0": {
-            "image": "rustvmm/dev:v12",
+          "docker#{DOCKER_PLUGIN_VERSION}": {
+            "image": "rustvmm/dev:{CONTAINER_VERSION}",
             "always-pull": true
           }
         }
@@ -161,8 +161,8 @@
       },
       "plugins": [
         {
-          "docker#v3.8.0": {
-            "image": "rustvmm/dev:v12",
+          "docker#{DOCKER_PLUGIN_VERSION}": {
+            "image": "rustvmm/dev:{CONTAINER_VERSION}",
             "always-pull": true
           }
         }
@@ -182,8 +182,8 @@
       },
       "plugins": [
         {
-          "docker#v3.8.0": {
-            "image": "rustvmm/dev:v12",
+          "docker#{DOCKER_PLUGIN_VERSION}": {
+            "image": "rustvmm/dev:{CONTAINER_VERSION}",
             "always-pull": true
           }
         }
@@ -203,8 +203,8 @@
       },
       "plugins": [
         {
-          "docker#v3.8.0": {
-            "image": "rustvmm/dev:v12",
+          "docker#{DOCKER_PLUGIN_VERSION}": {
+            "image": "rustvmm/dev:{CONTAINER_VERSION}",
             "always-pull": true
           }
         }
@@ -224,8 +224,8 @@
       },
       "plugins": [
         {
-          "docker#v3.8.0": {
-            "image": "rustvmm/dev:v12",
+          "docker#{DOCKER_PLUGIN_VERSION}": {
+            "image": "rustvmm/dev:{CONTAINER_VERSION}",
             "always-pull": true
           }
         }
@@ -245,8 +245,8 @@
       },
       "plugins": [
         {
-          "docker#v3.8.0": {
-            "image": "rustvmm/dev:v12",
+          "docker#{DOCKER_PLUGIN_VERSION}": {
+            "image": "rustvmm/dev:{CONTAINER_VERSION}",
             "always-pull": true
           }
         }
@@ -266,8 +266,8 @@
       },
       "plugins": [
         {
-          "docker#v3.8.0": {
-            "image": "rustvmm/dev:v12",
+          "docker#{DOCKER_PLUGIN_VERSION}": {
+            "image": "rustvmm/dev:{CONTAINER_VERSION}",
             "always-pull": true
           }
         }
@@ -287,8 +287,8 @@
       },
       "plugins": [
         {
-          "docker#v3.8.0": {
-            "image": "rustvmm/dev:v12",
+          "docker#{DOCKER_PLUGIN_VERSION}": {
+            "image": "rustvmm/dev:{CONTAINER_VERSION}",
             "always-pull": true,
             "privileged": true
           }
@@ -310,8 +310,8 @@
       },
       "plugins": [
         {
-          "docker#v3.8.0": {
-            "image": "rustvmm/dev:v12",
+          "docker#{DOCKER_PLUGIN_VERSION}": {
+            "image": "rustvmm/dev:{CONTAINER_VERSION}",
             "always-pull": true,
             "propagate-environment": true
           }
@@ -332,8 +332,8 @@
       },
       "plugins": [
         {
-          "docker#v3.8.0": {
-            "image": "rustvmm/dev:v12",
+          "docker#{DOCKER_PLUGIN_VERSION}": {
+            "image": "rustvmm/dev:{CONTAINER_VERSION}",
             "always-pull": true
           }
         }
