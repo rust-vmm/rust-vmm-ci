@@ -7,11 +7,29 @@ import pytest
 
 from utils import get_repo_root_path
 
+
+def get_coverage_config_path():
+    machine = platform.machine()
+    target_file = f"coverage_config_{machine}.json"
+    # We use a breadth-first search to guarantee that the config file
+    # belongs to the crate that is being tested. Otherwise we might end
+    # up wrongfully using the config file in the rust-vmm-ci submodule.
+    # os.walkdir() offers a depth-first search and couldn't be used here.
+    dirs = [os.getcwd()]
+    while len(dirs):
+        nextDirs = []
+        for dir in dirs:
+            for file in os.listdir(dir):
+                file_path = os.path.join(dir, file)
+                if os.path.isdir(file_path):
+                    nextDirs.append(file_path)
+                elif file == target_file:
+                    return file_path
+        dirs = nextDirs
+
+
 REPO_ROOT_PATH = get_repo_root_path()
-if platform.machine() == "x86_64":
-    COVERAGE_CONFIG_PATH = os.path.join(REPO_ROOT_PATH, "coverage_config_x86_64.json")
-elif platform.machine() == "aarch64":
-    COVERAGE_CONFIG_PATH = os.path.join(REPO_ROOT_PATH, "coverage_config_aarch64.json")
+COVERAGE_CONFIG_PATH = get_coverage_config_path()
 
 
 def _read_test_config():
