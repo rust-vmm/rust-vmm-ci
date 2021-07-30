@@ -172,7 +172,7 @@ steps:
 
   - label: "coverage-x86"
     commands:
-      - pytest rust-vmm-ci/integration_tests/test_coverage.py
+      - find . -type f -name "test_coverage.py" | xargs pytest
     retry:
       automatic: false
     agents:
@@ -205,7 +205,7 @@ steps:
 
   - label: "commit-format"
     commands:
-      - pytest rust-vmm-ci/integration_tests/test_commit_format.py
+      - find . -type f -name "test_commit_format.py" | xargs pytest
     if: build.env("BUILDKITE_REPO") !~ /^git@/
     retry:
       automatic: false
