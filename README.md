@@ -23,7 +23,7 @@ git submodule add https://github.com/rust-vmm/rust-vmm-ci.git
 git commit -s -m "Added rust-vmm-ci as submodule"
 ```
 
-1. Create the coverage test configuration file named
+2. Create the coverage test configuration file named
 `coverage_config_ARCH.json` in the root of the repository, where `ARCH` is the
 architecture of the machine.
 There are two coverage test configuration files, one per each platform.
@@ -49,15 +49,52 @@ The json must have the following fields:
 This file is required for the coverage integration so it needs to be added
 to the repository as well.
 
-1. Create a new pipeline definition in Buildkite. For this step ask one of the
-rust-vmm Buildkite [admins](CODEOWNERS) to create one for you. Add a pipeline
-step that is uploading the rust-vmm-ci pipeline:
+3. Create a new pipeline definition in Buildkite. For this step ask one of the
+rust-vmm Buildkite [admins](CODEOWNERS) to create one for you. The process is explained
+[here](https://github.com/rust-vmm/community/blob/master/docs/maintainers/setup_new_repo.md#set-up-ci).
 
+4. There is a script that autogenerates a dynamic Buildkite pipeline. To run 
+the CI using this dynamic pipeline, you need to add a step that is uploading
+the rust-vmm-ci pipeline:
 ```bash
-buildkite-agent pipeline upload rust-vmm-ci/.buildkite/pipeline.yml
+./rust-vmm-ci/.buildkite/autogenerate_pipeline.py | buildkite-agent pipeline upload
+```
+This allows overriding some values and extending others through environment 
+variables. 
+- `X86_LINUX_AGENT_TAGS`: overrides the tags by which the x86_64 linux agent is
+  selected; the default values are
+
+  `{"os": "linux", "platform": "x86.metal"}`
+- `AARCH64_LINUX_AGENT_TAGS`: overrides the tags by which the aarch64 linux
+  agent is selected. The default values are
+
+  `{"os": "linux", "platform": "arm.metal"}`
+- `DOCKER_PLUGIN_CONFIG`: specifies additional configuration for the docker
+  plugin. For available configuration, please check the
+  https://github.com/buildkite-plugins/docker-buildkite-plugin.
+
+The environment variables are specified as dictionaries, where the first
+key is `tests` and its value is a list of test names where the configuration
+should be applied; the second key is `cfg` and its value is a dictionary with
+the actual configuration.
+
+For example, we can extend the docker plugin specification as follows:
+```shell
+DOCKER_PLUGIN_CONFIG='{
+    "tests": ["coverage"],
+    "cfg": {
+        "devices": [ "/dev/vhost-vdpa-0" ],
+        "privileged": true
+    }
+}'
+./rust-vmm-ci/.buildkite/autogenerate_pipeline.py | buildkite-agent pipeline upload
 ```
 
-1. The code owners of the repository will have to setup a WebHook for
+For most use cases, overriding or extending the configuration is not necessary. We may
+want to do so if, for example, the platform needs a custom device that is not available
+on the existing test instances or if we need a specialized hypervisor.
+
+5. The code owners of the repository will have to setup a WebHook for
 triggering the CI on
 [pull request](https://developer.github.com/v3/activity/events/types/#pullrequestevent)
 and [push](https://developer.github.com/v3/activity/events/types/#pushevent)
@@ -75,21 +112,21 @@ Example of step that checks the build:
 
 ```yaml
 steps:
-  - label: "build-gnu-x86"
-    commands:
-     - cargo build --release
-    retry:
-      automatic: false
-    agents:
-      platform: x86_64.metal
-    plugins:
-      - docker#v3.0.1:
-          image: "rustvmm/dev:v${LATEST}"
-          always-pull: true
+- label: build-gnu-x86_64
+  command: cargo build --release
+  retry:
+    automatic: false
+  agents:
+    os: linux
+    platform: x86_64.metal
+  plugins:
+  - docker#v3.8.0:
+      image: rustvmm/dev:v12
+      always-pull: true
 ```
 
-To see all steps in the pipeline check the
-[.buildkite/pipeline.yml](.buildkite/pipeline.yml) file.
+To see all steps in the pipeline check the output of the 
+[.buildkite/autogenerate_pipeline.py](.buildkite/autogenerate_pipeline.py) script.
 
 ### Custom Pipeline
 
@@ -107,58 +144,18 @@ enabled, the following step can be added in the custom pipeline under
 
 ```yaml
 steps:
-  - label: "build-gnu-x86-bzimage"
-    commands:
-     - cargo build --release --features bzimage
-    retry:
-      automatic: false
-    agents:
-      platform: x86_64.metal
-    plugins:
-      - docker#v3.0.1:
-          image: "rustvmm/dev:${LATEST}"
-always-pull: true
+- label: build-gnu-x86_64-bzimage
+  command: cargo build --release --features bzimage
+  retry:
+    automatic: false
+  agents:
+    os: linux
+    platform: x86_64.metal
+  plugins:
+  - docker#v3.8.0:
+      image: rustvmm/dev:v12
+      always-pull: true
 ```
-
-### Custom Repository Hooks
-
-The integration tests of some repositories have dependencies on external
-resources. One example is
-[`linux-loader`](https://github.com/rust-vmm/linux-loader/) which needs to
-download a bzImage before running the unit tests. Because this is specific
-to the `linux-loader` crate, the logic for downloading the required resources
-cannot be part of the common pipeline. The mechanism used here is
-[Repository Hooks](https://buildkite.com/docs/agent/v3/hooks#repository-hooks).
-The hooks are defined per repository and live in the crate repository under
-`.buildkite/hooks`.
-
-Example of post-checkout hook that downloads and extracts a bzImage:
-
-```bash
-#!/bin/bash
-
-DEB_NAME="linux-image-4.9.0-9-amd64_4.9.168-1_amd64.deb"
-DEB_URL="http://ftp.debian.org/debian/pool/main/l/linux/${DEB_NAME}"
-
-REPO_PATH="${BUILDKITE_BUILD_CHECKOUT_PATH}"
-DEB_PATH="${REPO_PATH}/${DEB_NAME}"
-EXTRACT_PATH="${REPO_PATH}/src/bzimage-archive"
-BZIMAGE_PATH="${EXTRACT_PATH}/boot/vmlinuz-4.9.0-9-amd64"
-
-mkdir -p ${EXTRACT_PATH}
-
-wget ${DEB_URL} -P ${REPO_PATH}
-dpkg-deb -x ${DEB_PATH} ${EXTRACT_PATH}
-
-mv ${BZIMAGE_PATH} ${REPO_PATH}/src/bzimage
-rm -r ${EXTRACT_PATH}
-rm -f ${DEB_PATH}
-```
-
-In this example the post-checkout hook downloads a deb image, extracts its
-contents and places it in `linux-loader/src/bzimage`. The unit tests will use
-the relative path `src/bzimage` which does not depend on the image
-being downloaded.
 
 ## Integration Tests
 
@@ -236,17 +233,17 @@ results:
 
 ```yaml
 steps:
-  - label: "bench-aarch64"
-    commands:
-      - pytest rust-vmm-ci/integration_tests/test_benchmark.py -s
-    retry:
-      automatic: false
-    agents:
-      platform: arm.metal
-    plugins:
-      - docker#v3.0.1:
-          image: "rustvmm/dev:v${LATEST}"
-          always-pull: true
+- label: bench-aarch64
+  command: pytest rust-vmm-ci/integration_tests/test_benchmark.py -s
+  retry:
+    automatic: false
+  agents:
+    os: linux
+    platform: arm.metal
+  plugins:
+  - docker#v3.8.0:
+      image: rustvmm/dev:v12
+      always-pull: true
 ```
 
 The test requires [`criterion`](https://github.com/bheisler/criterion.rs)
