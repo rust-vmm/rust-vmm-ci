@@ -11,8 +11,9 @@ all rust-vmm components.
 
 Some components need to override the default configuration such that they can
 access devices while running the tests (for example access to `/dev/kvm`),
-access to a temporary volume, and others. As such, this script supports
-overriding the following configurations through environment variables:
+access to a temporary volume, and others. Some components may also need to skip
+some of the tests. As such, this script supports overriding the following
+configurations through environment variables:
 - `X86_LINUX_AGENT_TAGS`: overrides the tags by which the x86_64 linux agent is
   selected.
 - `AARCH64_LINUX_AGENT_TAGS`: overrides the tags by which the aarch64 linux
@@ -20,14 +21,17 @@ overriding the following configurations through environment variables:
 - `DOCKER_PLUGIN_CONFIG`: specifies additional configuration for the docker
   plugin. For available configuration, please check the
   https://github.com/buildkite-plugins/docker-buildkite-plugin.
+- `TESTS_TO_SKIP`: specifies a list of tests to be skipped.
 
-NOTE: The environment variables are specified as dictionaries, where the first
-key is `tests` and its value is a list of test names where the configuration
-should be applied; the second key is `cfg` and its value is a dictionary with
-the actual configuration.
+NOTE: The variable `TESTS_TO_SKIP` is specified as a JSON list with the names
+of the tests to be skipped. The other variables are specified as dictionaries,
+where the first key is `tests` and its value is a list of test names where the
+configuration should be applied; the second key is `cfg` and its value is a
+dictionary with the actual configuration.
 
 Examples of a valid configuration:
 ```shell
+TESTS_TO_SKIP='["commit-format"]'
 DOCKER_PLUGIN_CONFIG='{
     "tests": ["coverage"],
     "cfg": {
@@ -56,6 +60,7 @@ DOCKER_PLUGIN_VERSION = "v3.8.0"
 X86_AGENT_TAGS = os.getenv('X86_LINUX_AGENT_TAGS')
 AARCH64_AGENT_TAGS = os.getenv('AARCH64_LINUX_AGENT_TAGS')
 DOCKER_PLUGIN_CONFIG = os.getenv('DOCKER_PLUGIN_CONFIG')
+TESTS_TO_SKIP = os.getenv('TESTS_TO_SKIP')
 
 PARENT_DIR = pathlib.Path(__file__).parent.resolve()
 
@@ -223,6 +228,12 @@ class BuildkiteConfig:
 
         for test in tests:
             platforms = test.get('platform')
+            test_name = test.get('test_name')
+
+            if TESTS_TO_SKIP:
+                tests_to_skip = json.loads(TESTS_TO_SKIP)
+                if test_name in tests_to_skip:
+                    continue
 
             # The platform is optional. When it is not specified, we don't add
             # it to the step so that we can run the test in any environment.

@@ -72,22 +72,24 @@ variables.
 - `DOCKER_PLUGIN_CONFIG`: specifies additional configuration for the docker
   plugin. For available configuration, please check the
   https://github.com/buildkite-plugins/docker-buildkite-plugin.
+- `TESTS_TO_SKIP`: specifies a list of tests to be skipped.
 
-The environment variables are specified as dictionaries, where the first
-key is `tests` and its value is a list of test names where the configuration
-should be applied; the second key is `cfg` and its value is a dictionary with
-the actual configuration.
+The variable `TESTS_TO_SKIP` is specified as a JSON list with the names
+of the tests to be skipped. The other variables are specified as dictionaries,
+where the first key is `tests` and its value is a list of test names where the
+configuration should be applied; the second key is `cfg` and its value is a
+dictionary with the actual configuration.
 
-For example, we can extend the docker plugin specification as follows:
+For example, we can skip the test `commit-format` and extend the docker plugin 
+specification as follows:
 ```shell
-DOCKER_PLUGIN_CONFIG='{
+TESTS_TO_SKIP='["commit-format"]' DOCKER_PLUGIN_CONFIG='{
     "tests": ["coverage"],
     "cfg": {
         "devices": [ "/dev/vhost-vdpa-0" ],
         "privileged": true
     }
-}'
-./rust-vmm-ci/.buildkite/autogenerate_pipeline.py | buildkite-agent pipeline upload
+}' ./rust-vmm-ci/.buildkite/autogenerate_pipeline.py | buildkite-agent pipeline upload
 ```
 
 For most use cases, overriding or extending the configuration is not necessary. We may
