@@ -294,3 +294,32 @@ pytest rust-vmm-ci/integration_tests/test_benchmark.py -s
 Note that performance is highly dependent on the underlying platform that the
 tests are running on. The raw numbers obtained are likely to differ from their
 counterparts on a CI instance.
+
+### Running the tests locally
+To run the integration tests locally, you can run the following from the crate you need to test.
+You can find the latest container version in the 
+[script](.buildkite/autogenerate_pipeline.py)
+that autogenerates the pipeline. For example:
+```bash
+cd ~/vm-superio
+CRATE="vm-superio"
+LATEST=12
+docker run -it \
+           --security-opt seccomp=unconfined \
+           --volume $(pwd):/${CRATE} \
+           --volume ~/.ssh:/root/.ssh \
+           rustvmm/dev:v${LATEST}
+cd vm-superio
+./rust-vmm-ci/test_run.py
+```
+
+Known issues:
+- When running the `cargo-audit` test, the following error may occur:
+```
+test_cargo-audit (__main__.TestsContainer) ... error: couldn’t fetch advisory database: git operation failed: reference ‘refs/heads/master’ not found; class=Reference (4); code=NotFound (-3)
+```
+  A fix for this is to remove `~/.cargo/advisory-db` in the container, and then rerun `test_run.py`:
+```
+rm -rf ~/.cargo/advisory-db
+./rust-vmm-ci/test_run.py
+```
