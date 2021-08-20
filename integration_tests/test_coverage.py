@@ -2,7 +2,12 @@
 # SPDX-License-Identifier: Apache-2.0
 """Test the coverage and update the threshold when coverage is increased."""
 
-import json, os, re, shutil, subprocess, platform
+import json
+import os
+import re
+import shutil
+import subprocess
+import platform
 import pytest
 
 from utils import get_repo_root_path
@@ -90,12 +95,12 @@ def _get_current_coverage(coverage_config, no_cleanup):
                "--exclude-region={} " \
                "--exclude-pattern={} " \
                "--verify".format(
-        kcov_build_dir,
-        additional_kcov_param,
-        kcov_output_dir,
-        exclude_region,
-        exclude_pattern
-    )
+                   kcov_build_dir,
+                   additional_kcov_param,
+                   kcov_output_dir,
+                   exclude_region,
+                   exclude_pattern
+               )
 
     # Pytest closes stdin by default, but some tests might need it to be open.
     # In the future, should the need arise, we can feed custom data to stdin.
@@ -110,7 +115,8 @@ def _get_current_coverage(coverage_config, no_cleanup):
         )[0])
 
     # Remove coverage related directories.
-    # If user provided `--no-cleanup` flag, `kcov_output_dir` should not be removed.
+    # If user provided `--no-cleanup` flag, `kcov_output_dir`
+    # should not be removed.
     if not no_cleanup:
         shutil.rmtree(kcov_output_dir, ignore_errors=True)
     shutil.rmtree(kcov_build_dir, ignore_errors=True)
@@ -125,12 +131,13 @@ def test_coverage(profile, no_cleanup):
     if previous_coverage < current_coverage:
         if profile == pytest.profile_ci:
             # In the CI Profile we expect the coverage to be manually updated.
-            assert False, "Coverage is increased from {} to {}. " \
-                          "Please update the coverage in " \
-                          "tests/coverage.".format(
-                previous_coverage,
-                current_coverage
-            )
+            assert False,\
+                "Coverage is increased from {} to {}. "\
+                "Please update the coverage in coverage_config_{}.".format(
+                    previous_coverage,
+                    current_coverage,
+                    platform.machine()
+                )
         elif profile == pytest.profile_devel:
             coverage_config["coverage_score"] = current_coverage
             _write_coverage_config(coverage_config)

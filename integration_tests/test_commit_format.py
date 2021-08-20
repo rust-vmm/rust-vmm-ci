@@ -4,10 +4,9 @@
 Test the commit message format.
 
 This test works properly on the local machine only when the environment
-variables BASE_BRANCH and REMOTE are set. Otherwise the default values
-are "master" for the name of the base branch and "origin" for the
-remote name of the upstream repository, and this test may not work as
-expected.
+variables REMOTE and BASE_BRANCH are set. Otherwise the default values
+are "origin" for the remote name of the upstream repository and "master"
+for the name of the base branch, and this test may not work as expected.
 """
 
 import os
@@ -17,14 +16,14 @@ from utils import get_cmd_output
 
 COMMIT_TITLE_MAX_LEN = 50
 COMMIT_BODY_LINE_MAX_LEN = 72
-BASE_BRANCH = \
-    os.environ.get('BUILDKITE_PULL_REQUEST_BASE_BRANCH') or \
-    os.environ.get('BASE_BRANCH') or \
-    "master"
 REMOTE = \
     os.environ.get('BUILDKITE_REPO') or \
     os.environ.get('REMOTE') or \
     "origin"
+BASE_BRANCH = \
+    os.environ.get('BUILDKITE_PULL_REQUEST_BASE_BRANCH') or \
+    os.environ.get('BASE_BRANCH') or \
+    "master"
 
 
 def test_commit_format():
