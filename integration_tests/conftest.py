@@ -3,8 +3,8 @@
 import pytest
 
 
-PROFILE_CI="ci"
-PROFILE_DEVEL="devel"
+PROFILE_CI = "ci"
+PROFILE_DEVEL = "devel"
 
 
 def pytest_addoption(parser):
@@ -21,8 +21,9 @@ def pytest_addoption(parser):
         "--no-cleanup",
         action="store_true",
         default=False,
-        help="Keep the coverage report in `kcov_output` directory. If this flag is not provided, "
-             "both coverage related directories are removed."
+        help="Keep the coverage report in `kcov_output` directory. If this "
+             "flag is not provided, both coverage related directories are "
+             "removed."
     )
 
 
