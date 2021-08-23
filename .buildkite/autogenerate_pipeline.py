@@ -45,6 +45,8 @@ import sys
 import pathlib
 import copy
 
+from optparse import OptionParser
+
 # This represents the version of the rust-vmm-container used
 # for running the tests.
 CONTAINER_VERSION = "v12"
@@ -239,7 +241,7 @@ class BuildkiteConfig:
         return vars(self)
 
 
-def generate_pipeline(config_file=f"{PARENT_DIR}/test_description.json"):
+def generate_pipeline(config_file):
     """ Generate the pipeline yaml file from a json configuration file. """
 
     with open(config_file) as json_file:
@@ -252,4 +254,14 @@ def generate_pipeline(config_file=f"{PARENT_DIR}/test_description.json"):
 
 
 if __name__ == '__main__':
-    generate_pipeline()
+    parser = OptionParser()
+    # By default we're generating the rust-vmm-ci pipeline with the test
+    # configuration committed to this repository.
+    # This parameter is useful for generating the pipeline for repositories
+    # that have custom pipelines, and it helps with keeping the container
+    # version the same across pipelines.
+    parser.add_option("-t", "--test-description", dest="test_description",
+                      help="JSON file containing the test description.",
+                      default=f"{PARENT_DIR}/test_description.json")
+    (options, args) = parser.parse_args()
+    generate_pipeline(options.test_description)
