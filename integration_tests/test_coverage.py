@@ -133,7 +133,8 @@ def test_coverage(profile, no_cleanup):
             # In the CI Profile we expect the coverage to be manually updated.
             assert False,\
                 "Coverage is increased from {} to {}. "\
-                "Please update the coverage in coverage_config_{}.".format(
+                "Please update the coverage in coverage_config_{}.json."\
+                .format(
                     previous_coverage,
                     current_coverage,
                     platform.machine()
@@ -148,5 +149,5 @@ def test_coverage(profile, no_cleanup):
             assert False, "Invalid test profile."
     elif previous_coverage > current_coverage:
         diff = float(previous_coverage - current_coverage)
-        assert False, "Coverage drops by {:.2f}%. Please add unit tests for" \
+        assert False, "Coverage drops by {:.2f}%. Please add unit tests for " \
                       "the uncovered lines.".format(diff)
