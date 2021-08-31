@@ -8,6 +8,9 @@ import platform
 import pathlib
 import unittest
 
+from argparse import ArgumentParser, RawTextHelpFormatter
+from textwrap import dedent
+
 PARENT_DIR = pathlib.Path(__file__).parent.resolve()
 
 
@@ -31,6 +34,20 @@ def retrieve_test_list(
 
 
 if __name__ == '__main__':
+    help_text = dedent(
+        """
+        This script allows running all the tests at once on the local machine.
+        The tests "test_benchmark.py" and "test_commit_format.py" work properly
+        on the local machine only when the environment variables REMOTE and
+        BASE_BRANCH are set. Otherwise the default values are "origin" for the
+        remote name of the upstream repository and "master" for the name of the
+        base branch, and these tests may not work as expected.
+        """
+    )
+    parser = ArgumentParser(description=help_text,
+                            formatter_class=RawTextHelpFormatter)
+    parser.parse_args()
+
     test_config = retrieve_test_list()
     for test in test_config['tests']:
         command = test['command']
