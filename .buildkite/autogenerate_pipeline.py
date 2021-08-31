@@ -51,7 +51,8 @@ import sys
 import pathlib
 import copy
 
-from optparse import OptionParser
+from argparse import ArgumentParser, RawTextHelpFormatter
+from textwrap import dedent
 
 # This represents the version of the rust-vmm-container used
 # for running the tests.
@@ -267,14 +268,31 @@ def generate_pipeline(config_file):
 
 
 if __name__ == '__main__':
-    parser = OptionParser()
+    help_text = dedent(
+        """
+        This script supports overriding the following configurations through
+        environment variables:
+        - X86_LINUX_AGENT_TAGS: overrides the tags by which the x86_64 linux
+        agent is selected.
+        - AARCH64_LINUX_AGENT_TAGS: overrides the tags by which the aarch64
+        linux agent is selected.
+        - DOCKER_PLUGIN_CONFIG: specifies additional configuration for the
+        docker plugin. For available configuration, please check
+        https://github.com/buildkite-plugins/docker-buildkite-plugin.
+        - TESTS_TO_SKIP: specifies a list of tests to be skipped.
+        """
+    )
+    parser = ArgumentParser(description=help_text,
+                            formatter_class=RawTextHelpFormatter)
     # By default we're generating the rust-vmm-ci pipeline with the test
     # configuration committed to this repository.
     # This parameter is useful for generating the pipeline for repositories
     # that have custom pipelines, and it helps with keeping the container
     # version the same across pipelines.
-    parser.add_option("-t", "--test-description", dest="test_description",
-                      help="JSON file containing the test description.",
-                      default=f"{PARENT_DIR}/test_description.json")
-    (options, args) = parser.parse_args()
-    generate_pipeline(options.test_description)
+    parser.add_argument('-t', '--test-description',
+                        metavar="JSON_FILE",
+                        help='The path to the JSON file containing the test'
+                             ' description for the CI.',
+                        default=f'{PARENT_DIR}/test_description.json')
+    args = parser.parse_args()
+    generate_pipeline(args.test_description)
