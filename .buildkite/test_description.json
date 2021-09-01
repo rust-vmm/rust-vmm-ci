@@ -38,7 +38,7 @@
     },
     {
       "test_name": "clippy",
-      "command": "cargo clippy --workspace --bins --examples --benches --all-features -- -D warnings",
+      "command": "cargo clippy --workspace --bins --examples --benches --all-features --all-targets -- -D warnings",
       "platform": [
         "x86_64",
         "aarch64"
