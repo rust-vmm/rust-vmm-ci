@@ -15,7 +15,7 @@ To run the integration tests defined in the pipeline as part of the CI:
 
 ```bash
 # Add rust-vmm-ci as a submodule. This will point to the latest rust-vmm-ci
-# commit from the master branch. The following command will also add a
+# commit from the main branch. The following command will also add a
 # `.gitmodules` file and the `rust-vmm-ci` to the index.
 git submodule add https://github.com/rust-vmm/rust-vmm-ci.git
 # Commit the changes to your repository so that the CI can run using the
@@ -51,7 +51,7 @@ to the repository as well.
 
 3. Create a new pipeline definition in Buildkite. For this step ask one of the
 rust-vmm Buildkite [admins](CODEOWNERS) to create one for you. The process is explained
-[here](https://github.com/rust-vmm/community/blob/master/docs/maintainers/setup_new_repo.md#set-up-ci).
+[here](https://github.com/rust-vmm/community/blob/main/docs/maintainers/setup_new_repo.md#set-up-ci).
 
 4. There is a script that autogenerates a dynamic Buildkite pipeline. To run 
 the CI using this dynamic pipeline, you need to add a step that is uploading
@@ -226,7 +226,7 @@ than the coverage reported in [tests/coverage](tests/coverage).
 
 `rust-vmm-ci` includes an integration test that can run a battery of
 benchmarks at every pull request, comparing the results with the tip of the
-upstream `master` branch. The test is not included in the default Buildkite
+upstream `main` branch. The test is not included in the default Buildkite
 pipeline. Each crate that requires the test to be run as part of the CI must
 add a [custom pipeline](#custom-pipeline).
 
@@ -271,9 +271,9 @@ cargo bench [--all-features] OR [--features <features>]
 
 `rust-vmm-ci` uses [`critcmp`](https://github.com/BurntSushi/critcmp) to
 compare the results yielded by `cargo bench --all-features` on the PR being
-tested with those from the tip of the upstream `master` branch. The test
+tested with those from the tip of the upstream `main` branch. The test
 runs `cargo bench` twice, once on the current `HEAD`, then again after
-`git checkout origin/master`. `critcmp` takes care of the comparison, making
+`git checkout origin/main`. `critcmp` takes care of the comparison, making
 use of `criterion`'s stable format for
 [output files](https://bheisler.github.io/criterion.rs/book/user_guide/csv_output.html).
 The results are printed to `stdout` and can be visually inspected in the
@@ -316,7 +316,7 @@ cd vm-superio
 Known issues:
 - When running the `cargo-audit` test, the following error may occur:
 ```
-test_cargo-audit (__main__.TestsContainer) ... error: couldn’t fetch advisory database: git operation failed: reference ‘refs/heads/master’ not found; class=Reference (4); code=NotFound (-3)
+test_cargo-audit (__main__.TestsContainer) ... error: couldn’t fetch advisory database: git operation failed: reference ‘refs/heads/main’ not found; class=Reference (4); code=NotFound (-3)
 ```
   A fix for this is to remove `~/.cargo/advisory-db` in the container, and then rerun `test_run.py`:
 ```

@@ -5,7 +5,7 @@ Test the commit message format.
 
 This test works properly on the local machine only when the environment
 variables REMOTE and BASE_BRANCH are set. Otherwise the default values
-are "origin" for the remote name of the upstream repository and "master"
+are "origin" for the remote name of the upstream repository and "main"
 for the name of the base branch, and this test may not work as expected.
 """
 
@@ -23,7 +23,7 @@ REMOTE = \
 BASE_BRANCH = \
     os.environ.get('BUILDKITE_PULL_REQUEST_BASE_BRANCH') or \
     os.environ.get('BASE_BRANCH') or \
-    "master"
+    "main"
 
 
 def test_commit_format():

@@ -5,7 +5,7 @@ Compare benchmark results before and after a pull request.
 
 This test works properly on the local machine only when the environment
 variables REMOTE and BASE_BRANCH are set. Otherwise the default values
-are "origin" for the remote name of the upstream repository and "master"
+are "origin" for the remote name of the upstream repository and "main"
 for the name of the base branch, and this test may not work as expected.
 """
 
@@ -21,7 +21,7 @@ REMOTE = \
 BASE_BRANCH = \
     os.environ.get('BUILDKITE_PULL_REQUEST_BASE_BRANCH') or \
     os.environ.get('BASE_BRANCH') or \
-    "master"
+    "main"
 # File used for saving the results of cargo bench
 # when running on the PR branch.
 PR_BENCH_RESULTS_FILE = "pr_bench_results"
@@ -62,7 +62,7 @@ def test_bench():
             # exist. Hopefully it will be possible to check it in another way
             # ...soon
             print(
-                "There are no benchmarks in master. No comparison can happen."
+                "There are no benchmarks in main. No comparison can happen."
             )
         else:
             assert return_code == 0, "stdout: {}\n stderr: {}".format(
