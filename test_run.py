@@ -40,7 +40,7 @@ if __name__ == '__main__':
         The tests "test_benchmark.py" and "test_commit_format.py" work properly
         on the local machine only when the environment variables REMOTE and
         BASE_BRANCH are set. Otherwise the default values are "origin" for the
-        remote name of the upstream repository and "master" for the name of the
+        remote name of the upstream repository and "main" for the name of the
         base branch, and these tests may not work as expected.
         """
     )
