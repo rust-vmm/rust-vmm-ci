@@ -9,7 +9,7 @@ specified as a parameter to the `generate_test_pipeline`.
 
 The pipeline is generated based on the test configuration in
 `test_description.json`. The JSON file contains a list of tests to be run by
-all rust-vmm components.
+all rust-vmm components. Each test has a default timeout of 5 minutes.
 
 Some components need to override the default configuration such that they can
 access devices while running the tests (for example access to `/dev/kvm`),
