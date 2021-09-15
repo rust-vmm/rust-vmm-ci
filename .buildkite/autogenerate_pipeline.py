@@ -24,12 +24,15 @@ configurations through environment variables:
   plugin. For available configuration, please check the
   https://github.com/buildkite-plugins/docker-buildkite-plugin.
 - `TESTS_TO_SKIP`: specifies a list of tests to be skipped.
+- `TIMEOUTS_MIN`: overrides the timeout value for specific tests.
 
 NOTE: The variable `TESTS_TO_SKIP` is specified as a JSON list with the names
-of the tests to be skipped. The other variables are specified as dictionaries,
-where the first key is `tests` and its value is a list of test names where the
-configuration should be applied; the second key is `cfg` and its value is a
-dictionary with the actual configuration.
+of the tests to be skipped. The variable `TIMEOUTS_MIN` is a dictionary where
+each key is the name of a test and each value is the number of minutes for the
+timeout. The other variables are specified as dictionaries, where the first key
+is `tests` and its value is a list of test names where the configuration should
+be applied; the second key is `cfg` and its value is a dictionary with the
+actual configuration.
 
 Examples of a valid configuration:
 ```shell
@@ -41,6 +44,7 @@ DOCKER_PLUGIN_CONFIG='{
         "privileged": true
     }
 }'
+TIMEOUTS_MIN='["style": 30]'
 ```
 """
 
@@ -64,6 +68,7 @@ X86_AGENT_TAGS = os.getenv('X86_LINUX_AGENT_TAGS')
 AARCH64_AGENT_TAGS = os.getenv('AARCH64_LINUX_AGENT_TAGS')
 DOCKER_PLUGIN_CONFIG = os.getenv('DOCKER_PLUGIN_CONFIG')
 TESTS_TO_SKIP = os.getenv('TESTS_TO_SKIP')
+TIMEOUTS_MIN = os.getenv('TIMEOUTS_MIN')
 
 PARENT_DIR = pathlib.Path(__file__).parent.resolve()
 
@@ -71,8 +76,9 @@ PARENT_DIR = pathlib.Path(__file__).parent.resolve()
 class BuildkiteStep:
     """
     This builds a Buildkite step according to a json configuration and the
-    environment variables `X86_LINUX_AGENT_TAGS`, `AARCH64_LINUX_AGENT_TAGS`
-    and `DOCKER_PLUGIN_CONFIG`. The output is a dictionary.
+    environment variables `X86_LINUX_AGENT_TAGS`, `AARCH64_LINUX_AGENT_TAGS`,
+    `DOCKER_PLUGIN_CONFIG`, `TESTS_TO_SKIP` and `TIMEOUTS_MIN`.
+    The output is a dictionary.
     """
 
     def __init__(self):
@@ -97,6 +103,7 @@ class BuildkiteStep:
                 }
             }
         ]
+        self.timeout_in_minutes = 5
 
     def _set_platform(self, platform):
         """ Set platform if given in the json input. """
@@ -175,6 +182,12 @@ class BuildkiteStep:
         target = self.plugins[0][f"docker#{DOCKER_PLUGIN_VERSION}"]
         self._env_change_config(test_name, DOCKER_PLUGIN_CONFIG, target)
 
+    def _env_override_timeout(self, test_name):
+        if TIMEOUTS_MIN:
+            timeouts_min = json.loads(TIMEOUTS_MIN)
+            if test_name in timeouts_min:
+                self.timeout_in_minutes = timeouts_min[test_name]
+
     def build(self, input):
         """
         Build a Buildkite step using the `input` configuration that must
@@ -210,6 +223,7 @@ class BuildkiteStep:
         # Override/add configuration from environment variables.
         self._env_override_agent_tags(test_name)
         self._env_add_docker_config(test_name)
+        self._env_override_timeout(test_name)
 
         # Return the object's attributes and their values as a dictionary.
         return vars(self)
@@ -280,6 +294,7 @@ if __name__ == '__main__':
         docker plugin. For available configuration, please check
         https://github.com/buildkite-plugins/docker-buildkite-plugin.
         - TESTS_TO_SKIP: specifies a list of tests to be skipped.
+        - TIMEOUTS_MIN: overrides the timeout value for specific tests.
         """
     )
     parser = ArgumentParser(description=help_text,
