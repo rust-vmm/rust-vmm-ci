@@ -53,9 +53,9 @@ to the repository as well.
 rust-vmm Buildkite [admins](CODEOWNERS) to create one for you. The process is explained
 [here](https://github.com/rust-vmm/community/blob/main/docs/maintainers/setup_new_repo.md#set-up-ci).
 
-4. There is a script that autogenerates a dynamic Buildkite pipeline. To run 
-the CI using this dynamic pipeline, you need to add a step that is uploading
-the rust-vmm-ci pipeline:
+4. There is a script that autogenerates a dynamic Buildkite pipeline. Each step
+in the pipeline has a default timeout of 5 minutes. To run the CI using this dynamic pipeline,
+you need to add a step that is uploading the rust-vmm-ci pipeline:
 ```bash
 ./rust-vmm-ci/.buildkite/autogenerate_pipeline.py | buildkite-agent pipeline upload
 ```
@@ -128,6 +128,7 @@ steps:
   - docker#v3.8.0:
       image: rustvmm/dev:v12
       always-pull: true
+  timeout_in_minutes: 5
 ```
 
 To see all steps in the pipeline check the output of the 
