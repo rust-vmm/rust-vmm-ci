@@ -73,17 +73,20 @@ variables.
   plugin. For available configuration, please check the
   https://github.com/buildkite-plugins/docker-buildkite-plugin.
 - `TESTS_TO_SKIP`: specifies a list of tests to be skipped.
+- `TIMEOUTS_MIN`: overrides the timeout value for specific tests.
 
 The variable `TESTS_TO_SKIP` is specified as a JSON list with the names
-of the tests to be skipped. The other variables are specified as dictionaries,
-where the first key is `tests` and its value is a list of test names where the
-configuration should be applied; the second key is `cfg` and its value is a
-dictionary with the actual configuration.
+of the tests to be skipped. The variable `TIMEOUTS_MIN` is a dictionary where
+each key is the name of a test and each value is the number of minutes for the
+timeout. The other variables are specified as dictionaries, where the first key
+is `tests` and its value is a list of test names where the configuration should
+be applied; the second key is `cfg` and its value is a dictionary with the
+actual configuration.
 
-For example, we can skip the test `commit-format` and extend the docker plugin 
-specification as follows:
+For example, we can skip the test `commit-format`, have a timeout of 30 minutes
+for the test `style` and extend the docker plugin specification as follows:
 ```shell
-TESTS_TO_SKIP='["commit-format"]' DOCKER_PLUGIN_CONFIG='{
+TESTS_TO_SKIP='["commit-format"]' TIMEOUTS_MIN='{"style": 30}' DOCKER_PLUGIN_CONFIG='{
     "tests": ["coverage"],
     "cfg": {
         "devices": [ "/dev/vhost-vdpa-0" ],
@@ -135,28 +138,33 @@ To see all steps in the pipeline check the output of the
 Some crates might need to test functionality that is specific to that
 particular component and thus cannot be added to the common pipeline.
 
-In this situation, the repositories need to create a custom pipeline (besides
-the rust-vmm-ci pipeline) and add it in the repository. The preferred path for
-the custom pipeline is `.buildkite/pipeline.yml`.
+In this situation, the repositories need to create a JSON file with a custom
+test configuration. The preferred path is `.buildkite/custom-tests.json`.
 
 For example to test the build with one non-default
 [feature](https://doc.rust-lang.org/1.19.0/book/first-edition/conditional-compilation.html)
-enabled, the following step can be added in the custom pipeline under
-`.buildkite/pipeline.yml`.
+enabled, the following configuration can be added:
 
-```yaml
-steps:
-- label: build-gnu-x86_64-bzimage
-  command: cargo build --release --features bzimage
-  retry:
-    automatic: false
-  agents:
-    os: linux
-    platform: x86_64.metal
-  plugins:
-  - docker#v3.8.0:
-      image: rustvmm/dev:v12
-      always-pull: true
+```json
+{
+  "tests": [
+    {
+      "test_name": "build-bzimage",
+      "command": "cargo build --release --features bzimage",
+      "platform": [
+        "x86_64"
+      ]
+    }
+  ]
+}
+```
+
+To run this custom pipeline, you need to add a step that is uploading it in Buildkite. The same
+script that autogenerates the main pipeline can be used with the option 
+`-t PATH_TO_CUSTOM_CONFIGURATION`:
+
+```bash
+./rust-vmm-ci/.buildkite/autogenerate_pipeline.py -t .buildkite/custom-tests.json | buildkite-agent pipeline upload
 ```
 
 ## Integration Tests
