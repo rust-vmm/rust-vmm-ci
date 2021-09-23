@@ -126,7 +126,7 @@ steps:
     platform: x86_64.metal
   plugins:
   - docker#v3.8.0:
-      image: rustvmm/dev:v12
+      image: rustvmm/dev:v13
       always-pull: true
   timeout_in_minutes: 5
 ```
@@ -253,7 +253,7 @@ steps:
     platform: arm.metal
   plugins:
   - docker#v3.8.0:
-      image: rustvmm/dev:v12
+      image: rustvmm/dev:v13
       always-pull: true
 ```
 
@@ -312,7 +312,7 @@ that autogenerates the pipeline. For example:
 ```bash
 cd ~/vm-superio
 CRATE="vm-superio"
-LATEST=12
+LATEST=13
 docker run -it \
            --security-opt seccomp=unconfined \
            --volume $(pwd):/${CRATE} \
