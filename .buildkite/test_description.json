@@ -18,7 +18,7 @@
     },
     {
       "test_name": "style",
-      "command": "cargo fmt --all -- --check"
+      "command": "cargo fmt --all -- --check --config format_code_in_doc_comments=true"
     },
     {
       "test_name": "unittests-gnu",
