@@ -51,6 +51,9 @@ def _read_test_config():
     assert "exclude_path" in coverage_config
     assert "crate_features" in coverage_config
 
+    assert ' ' not in coverage_config["crate_features"], \
+        "spaces are not allowed in crate_features value"
+
     return coverage_config
 
 
