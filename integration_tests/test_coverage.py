@@ -1,4 +1,4 @@
-# Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# Copyright 2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
 """Test the coverage and update the threshold when coverage is increased."""
 
@@ -63,7 +63,7 @@ def _write_coverage_config(coverage_config):
         json.dump(coverage_config, outfile)
 
 
-def _get_current_coverage(coverage_config, no_cleanup):
+def _get_current_coverage(coverage_config, no_cleanup, test_scope):
     """Helper function that returns the coverage computed with kcov."""
     kcov_output_dir = os.path.join(REPO_ROOT_PATH, "kcov_output")
 
@@ -89,11 +89,15 @@ def _get_current_coverage(coverage_config, no_cleanup):
         exclude_pattern += ',' + additional_exclude_path
 
     additional_kcov_param = ''
+
+    if test_scope == pytest.workspace:
+        additional_kcov_param += '--all '
+
     crate_features = coverage_config["crate_features"]
     if crate_features:
         additional_kcov_param += '--features=' + crate_features
 
-    kcov_cmd = "CARGO_TARGET_DIR={} cargo kcov {} --all " \
+    kcov_cmd = "CARGO_TARGET_DIR={} cargo kcov {} " \
                "--output {} -- " \
                "--exclude-region={} " \
                "--exclude-pattern={} " \
@@ -127,15 +131,15 @@ def _get_current_coverage(coverage_config, no_cleanup):
     return coverage
 
 
-def test_coverage(profile, no_cleanup):
+def test_coverage(profile, no_cleanup, test_scope):
     coverage_config = _read_test_config()
-    current_coverage = _get_current_coverage(coverage_config, no_cleanup)
+    current_coverage = _get_current_coverage(coverage_config, no_cleanup, test_scope)
     previous_coverage = coverage_config["coverage_score"]
     if previous_coverage < current_coverage:
         if profile == pytest.profile_ci:
             # In the CI Profile we expect the coverage to be manually updated.
-            assert False,\
-                "Coverage is increased from {} to {}. "\
+            assert False, \
+                "Coverage is increased from {} to {}. " \
                 "Please update the coverage in coverage_config_{}.json."\
                 .format(
                     previous_coverage,
