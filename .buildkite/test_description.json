@@ -71,7 +71,7 @@
     },
     {
       "test_name": "cargo-audit",
-      "command": "cargo audit -q"
+      "command": "cargo audit -q --deny warnings"
     }
   ]
 }
