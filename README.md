@@ -126,7 +126,7 @@ steps:
     platform: x86_64.metal
   plugins:
   - docker#v3.8.0:
-      image: rustvmm/dev:v13
+      image: rustvmm/dev:v15
       always-pull: true
   timeout_in_minutes: 5
 ```
@@ -253,7 +253,7 @@ steps:
     platform: arm.metal
   plugins:
   - docker#v3.8.0:
-      image: rustvmm/dev:v13
+      image: rustvmm/dev:v15
       always-pull: true
 ```
 
