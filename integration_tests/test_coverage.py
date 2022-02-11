@@ -135,26 +135,27 @@ def test_coverage(profile, no_cleanup, test_scope):
     coverage_config = _read_test_config()
     current_coverage = _get_current_coverage(coverage_config, no_cleanup, test_scope)
     previous_coverage = coverage_config["coverage_score"]
-    if previous_coverage < current_coverage:
-        if profile == pytest.profile_ci:
-            # In the CI Profile we expect the coverage to be manually updated.
-            assert False, \
-                "Coverage is increased from {} to {}. " \
-                "Please update the coverage in coverage_config_{}.json."\
-                .format(
-                    previous_coverage,
-                    current_coverage,
-                    platform.machine()
-                )
-        elif profile == pytest.profile_devel:
-            coverage_config["coverage_score"] = current_coverage
-            _write_coverage_config(coverage_config)
-        else:
-            # This should never happen because pytest should only accept
-            # the valid test profiles specified with `choices` in
-            # `pytest_addoption`.
-            assert False, "Invalid test profile."
-    elif previous_coverage > current_coverage:
-        diff = float(previous_coverage - current_coverage)
-        assert False, "Coverage drops by {:.2f}%. Please add unit tests for " \
-                      "the uncovered lines.".format(diff)
+    diff = abs(float(previous_coverage - current_coverage))
+    if diff > 0.5:
+        if previous_coverage < current_coverage:
+            if profile == pytest.profile_ci:
+                # In the CI Profile we expect the coverage to be manually updated.
+                assert False, \
+                    "Coverage is increased from {} to {}. " \
+                    "Please update the coverage in coverage_config_{}.json."\
+                    .format(
+                        previous_coverage,
+                        current_coverage,
+                        platform.machine()
+                    )
+            elif profile == pytest.profile_devel:
+                coverage_config["coverage_score"] = current_coverage
+                _write_coverage_config(coverage_config)
+            else:
+                # This should never happen because pytest should only accept
+                # the valid test profiles specified with `choices` in
+                # `pytest_addoption`.
+                assert False, "Invalid test profile."
+        elif previous_coverage > current_coverage:
+            assert False, "Coverage drops by {:.2f}%. Please add unit tests for " \
+                          "the uncovered lines.".format(diff)
