@@ -14,8 +14,8 @@ import subprocess
 
 from utils import get_cmd_output
 
-COMMIT_TITLE_MAX_LEN = 50
-COMMIT_BODY_LINE_MAX_LEN = 72
+COMMIT_TITLE_MAX_LEN = 60
+COMMIT_BODY_LINE_MAX_LEN = 75
 REMOTE = \
     os.environ.get('BUILDKITE_REPO') or \
     os.environ.get('REMOTE') or \
@@ -30,9 +30,9 @@ def test_commit_format():
     """
     Checks commit message format for the current PR's commits.
 
-    Checks if commit messages follow the 50/72 git commit rule
-    [https://www.midori-global.com/blog/2018/04/02/git-50-72-rule]
-    and if commits are signed.
+    Checks if commit messages follow the 60/75 commit rule (a maximum
+    60 characters for the title and 75 characters for description
+    lines) and if commits are signed.
     """
     # Fetch the upstream repository.
     fetch_base_cmd = "git fetch {} {}".format(REMOTE, BASE_BRANCH)
@@ -60,8 +60,7 @@ def test_commit_format():
         message_lines = message.split("\n")
         assert len(message_lines) >= 3,\
             "The commit '{}' should contain at least 3 lines: title, " \
-            "blank line and a sign-off one. Please check: " \
-            "https://www.midori-global.com/blog/2018/04/02/git-50-72-rule."\
+            "blank line and a sign-off one." \
             .format(sha)
         title = message_lines[0]
         assert message_lines[1] == "",\
