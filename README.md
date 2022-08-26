@@ -126,7 +126,7 @@ steps:
     platform: x86_64.metal
   plugins:
   - docker#v3.8.0:
-      image: rustvmm/dev:v15
+      image: rustvmm/dev:v16
       always-pull: true
   timeout_in_minutes: 5
 ```
@@ -206,13 +206,15 @@ The line coverage is saved in [tests/coverage](tests/coverage). To update the
 coverage before submitting a PR, run the coverage test:
 
 ```bash
-crate="kvm-ioctls"
-container_version=5
+CRATE="kvm-ioctls"
+# NOTE: This might not be the latest container version, you can check which one we're using
+# by looking into the .buildkite/autogenerate_pipeline.py file.
+LATEST=16
 docker run --device=/dev/kvm \
            -it \
            --security-opt seccomp=unconfined \
-           --volume $(pwd)/${crate}:/${crate} \
-           rustvmm/dev:v${container_version}
+           --volume $(pwd)/${CRATE}:/${CRATE} \
+           rustvmm/dev:v${LATEST}
 cd ${crate}
 pytest --profile=devel rust-vmm-ci/integration_tests/test_coverage.py
 ```
@@ -253,7 +255,7 @@ steps:
     platform: arm.metal
   plugins:
   - docker#v3.8.0:
-      image: rustvmm/dev:v15
+      image: rustvmm/dev:v16
       always-pull: true
 ```
 
@@ -312,7 +314,9 @@ that autogenerates the pipeline. For example:
 ```bash
 cd ~/vm-superio
 CRATE="vm-superio"
-LATEST=13
+# NOTE: This might not be the latest container version, you can check which one we're using
+# by looking into the .buildkite/autogenerate_pipeline.py file.
+LATEST=16
 docker run -it \
            --security-opt seccomp=unconfined \
            --volume $(pwd):/${CRATE} \
