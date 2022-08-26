@@ -34,6 +34,11 @@ def test_commit_format():
     60 characters for the title and 75 characters for description
     lines) and if commits are signed.
     """
+    # Newer versions of git check the ownership of directories.
+    # We need to add an exception for /workdir which is shared, so that
+    # the git commands don't fail.
+    config_cmd = "git config --global --add safe.directory /workdir"
+    subprocess.run(config_cmd, shell=True, check=True)
     # Fetch the upstream repository.
     fetch_base_cmd = "git fetch {} {}".format(REMOTE, BASE_BRANCH)
     try:
