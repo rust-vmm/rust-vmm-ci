@@ -121,6 +121,11 @@ class BuildkiteStep:
         if conditional:
             setattr(self, 'if', conditional)
 
+    def _set_timeout_in_minutes(self, timeout):
+        """ Set the timeout if given in the json input. """
+        if timeout:
+            self.timeout_in_minutes = timeout
+
     def _add_docker_config(self, cfg):
         """ Add configuration for docker if given in the json input. """
 
@@ -200,6 +205,7 @@ class BuildkiteStep:
         platform = input.get('platform')
         docker = input.get('docker_plugin')
         conditional = input.get('conditional')
+        timeout = input.get('timeout_in_minutes')
 
         # Mandatory keys.
         assert test_name, "Step is missing test name."
@@ -219,6 +225,7 @@ class BuildkiteStep:
         self._set_platform(platform)
         self._set_conditional(conditional)
         self._add_docker_config(docker)
+        self._set_timeout_in_minutes(timeout)
 
         # Override/add configuration from environment variables.
         self._env_override_agent_tags(test_name)
