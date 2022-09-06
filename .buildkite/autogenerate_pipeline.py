@@ -144,11 +144,11 @@ class BuildkiteStep:
             env_cfg = json.loads(env_var)
 
             tests = env_cfg.get('tests')
-            assert tests,\
+            assert tests, \
                 f"Environment variable {env_var} is missing the `tests` key."
 
             cfg = env_cfg.get('cfg')
-            assert cfg,\
+            assert cfg, \
                 f"Environment variable {env_var} is missing the `cfg` key."
 
             if test_name in tests:
@@ -214,7 +214,7 @@ class BuildkiteStep:
 
         assert command, "Step is missing command."
         if "{target_platform}" in command:
-            assert platform,\
+            assert platform, \
                 "Command requires platform, but platform is missing."
             command = command.replace(
                 "{target_platform}", platform
