@@ -34,6 +34,12 @@ def test_bench():
     """Runs benchmarks before and after and compares the results."""
     os.chdir(get_repo_root_path())
 
+    # Newer versions of git check the ownership of directories.
+    # We need to add an exception for /workdir which is shared, so that
+    # the git commands don't fail.
+    config_cmd = "git config --global --add safe.directory /workdir"
+    subprocess.run(config_cmd, shell=True, check=True)
+
     # Get numbers for current HEAD.
     return_code, stdout, stderr = _run_cargo_bench(PR_BENCH_RESULTS_FILE)
     # Even if it is the first time this test is run, the benchmark tests should
