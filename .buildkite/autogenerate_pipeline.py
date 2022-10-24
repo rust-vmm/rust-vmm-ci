@@ -85,25 +85,26 @@ class BuildkiteStep:
         """
         Initialize a Buildkite step with default values.
         """
-
         # Default values.
         # The order in which the attributes are initialized is the same as the
         # order in which the keys will appear in the YAML file, because Python
         # dictionaries are ordered. For readability reasons, this order should
         # not be changed.
-        self.label = None
-        self.command = None
-        self.retry = {'automatic': False}
-        self.agents = {'os': 'linux'}
-        self.plugins = [
-            {
-                f"docker#{DOCKER_PLUGIN_VERSION}": {
-                    'image': f"rustvmm/dev:{CONTAINER_VERSION}",
-                    'always-pull': True
+        self.step_config = {
+            'label': None,
+            'command': None,
+            'retry': {'automatic': False},
+            'agents': {'os': 'linux'},
+            'plugins': [
+                {
+                    f"docker#{DOCKER_PLUGIN_VERSION}": {
+                        'image': f"rustvmm/dev:{CONTAINER_VERSION}",
+                        'always-pull': True
+                    }
                 }
-            }
-        ]
-        self.timeout_in_minutes = 5
+            ],
+            'timeout_in_minutes': 5
+        }
 
     def _set_platform(self, platform):
         """ Set platform if given in the json input. """
@@ -113,24 +114,24 @@ class BuildkiteStep:
             # setting the tags on the host.
             if platform == 'aarch64':
                 platform = 'arm'
-            self.agents['platform'] = f"{platform}.metal"
+            self.step_config['agents']['platform'] = f"{platform}.metal"
 
     def _set_conditional(self, conditional):
         """ Set conditional if given in the json input. """
 
         if conditional:
-            setattr(self, 'if', conditional)
+            self.step_config['if'] = conditional
 
     def _set_timeout_in_minutes(self, timeout):
         """ Set the timeout if given in the json input. """
         if timeout:
-            self.timeout_in_minutes = timeout
+            self.step_config['timeout_in_minutes'] = timeout
 
     def _add_docker_config(self, cfg):
         """ Add configuration for docker if given in the json input. """
 
         if cfg:
-            target = self.plugins[0][f"docker#{DOCKER_PLUGIN_VERSION}"]
+            target = self.step_config['plugins'][0][f"docker#{DOCKER_PLUGIN_VERSION}"]
             for key, val in cfg.items():
                 target[key] = val
 
@@ -165,7 +166,7 @@ class BuildkiteStep:
         """
 
         env_var = None
-        platform = self.agents.get('platform')
+        platform = self.step_config['agents'].get('platform')
 
         # Since the platform is optional, only override the config if the
         # platform was provided.
@@ -175,7 +176,7 @@ class BuildkiteStep:
             if platform == 'arm.metal' and AARCH64_AGENT_TAGS:
                 env_var = AARCH64_AGENT_TAGS
 
-        target = self.agents
+        target = self.step_config['agents']
         self._env_change_config(test_name, env_var, target, override=True)
 
     def _env_add_docker_config(self, test_name):
@@ -184,7 +185,7 @@ class BuildkiteStep:
         `DOCKER_PLUGIN_CONFIG` environment variable.
         """
 
-        target = self.plugins[0][f"docker#{DOCKER_PLUGIN_VERSION}"]
+        target = self.step_config['plugins'][0][f"docker#{DOCKER_PLUGIN_VERSION}"]
         self._env_change_config(test_name, DOCKER_PLUGIN_CONFIG, target)
 
     def _env_override_timeout(self, test_name):
@@ -210,7 +211,7 @@ class BuildkiteStep:
         # Mandatory keys.
         assert test_name, "Step is missing test name."
         platform_string = f"-{platform}" if platform else ""
-        self.label = f"{test_name}{platform_string}"
+        self.step_config['label'] = f"{test_name}{platform_string}"
 
         assert command, "Step is missing command."
         if "{target_platform}" in command:
@@ -219,7 +220,7 @@ class BuildkiteStep:
             command = command.replace(
                 "{target_platform}", platform
             )
-        self.command = command
+        self.step_config['command'] = command
 
         # Optional keys.
         self._set_platform(platform)
@@ -233,7 +234,7 @@ class BuildkiteStep:
         self._env_override_timeout(test_name)
 
         # Return the object's attributes and their values as a dictionary.
-        return vars(self)
+        return self.step_config
 
 
 class BuildkiteConfig:
@@ -243,10 +244,13 @@ class BuildkiteConfig:
     be put into yaml format by the pyyaml package.
     """
 
+    def __init__(self):
+        self.bk_config = None
+
     def build(self, input):
         """ Build the final Buildkite configuration fron the json input. """
 
-        self.steps = []
+        self.bk_config = {'steps': []}
         tests = input.get('tests')
         assert tests, "Input is missing list of tests."
 
@@ -270,10 +274,10 @@ class BuildkiteConfig:
 
                 step = BuildkiteStep()
                 step_output = step.build(step_input)
-                self.steps.append(step_output)
+                self.bk_config['steps'].append(step_output)
 
         # Return the object's attributes and their values as a dictionary.
-        return vars(self)
+        return self.bk_config
 
 
 def generate_pipeline(config_file):
