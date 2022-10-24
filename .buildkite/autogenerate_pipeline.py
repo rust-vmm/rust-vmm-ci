@@ -233,6 +233,17 @@ class BuildkiteStep:
         self._env_add_docker_config(test_name)
         self._env_override_timeout(test_name)
 
+        # We're now adding the keys for which we don't have explicit support
+        # (i.e. there is no checking/updating taking place). We are just
+        # forwarding the key, values without any change.
+        # We need to filter for keys that have special meaning and which we
+        # don't want to re-add.
+        special_keys = ['conditional', 'docker_plugin', 'platform', 'test_name']
+        additional_keys = {k: v for k, v in input.items() if not (k in self.step_config) and
+                           not(k in special_keys)}
+        if additional_keys:
+            self.step_config.update(additional_keys)
+
         # Return the object's attributes and their values as a dictionary.
         return self.step_config
 
