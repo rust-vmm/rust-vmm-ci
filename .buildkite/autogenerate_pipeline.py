@@ -127,6 +127,11 @@ class BuildkiteStep:
         if timeout:
             self.step_config['timeout_in_minutes'] = timeout
 
+    def _set_agent_queue(self, queue):
+        """Set the agent queue if provided in the json input."""
+        if queue:
+            self.step_config['agents']['queue'] = queue
+
     def _add_docker_config(self, cfg):
         """ Add configuration for docker if given in the json input. """
 
@@ -207,6 +212,7 @@ class BuildkiteStep:
         docker = input.get('docker_plugin')
         conditional = input.get('conditional')
         timeout = input.get('timeout_in_minutes')
+        queue = input.get('queue')
 
         # Mandatory keys.
         assert test_name, "Step is missing test name."
@@ -227,6 +233,7 @@ class BuildkiteStep:
         self._set_conditional(conditional)
         self._add_docker_config(docker)
         self._set_timeout_in_minutes(timeout)
+        self._set_agent_queue(queue)
 
         # Override/add configuration from environment variables.
         self._env_override_agent_tags(test_name)
@@ -238,7 +245,7 @@ class BuildkiteStep:
         # forwarding the key, values without any change.
         # We need to filter for keys that have special meaning and which we
         # don't want to re-add.
-        special_keys = ['conditional', 'docker_plugin', 'platform', 'test_name']
+        special_keys = ['conditional', 'docker_plugin', 'platform', 'test_name', 'queue']
         additional_keys = {k: v for k, v in input.items() if not (k in self.step_config) and
                            not(k in special_keys)}
         if additional_keys:
