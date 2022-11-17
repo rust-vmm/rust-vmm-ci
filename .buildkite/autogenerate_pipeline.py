@@ -116,6 +116,13 @@ class BuildkiteStep:
                 platform = 'arm'
             self.step_config['agents']['platform'] = f"{platform}.metal"
 
+    def _set_hypervisor(self, hypervisor):
+        """ Set hypervisor if given in the json input. """
+        supported_hypervisors = ['kvm', 'mshv']
+        if hypervisor:
+            if hypervisor in supported_hypervisors:
+                self.step_config['agents']['hypervisor'] = hypervisor
+
     def _set_conditional(self, conditional):
         """ Set conditional if given in the json input. """
 
@@ -209,6 +216,7 @@ class BuildkiteStep:
         test_name = input.get('test_name')
         command = input.get('command')
         platform = input.get('platform')
+        hypervisor = input.get('hypervisor')
         docker = input.get('docker_plugin')
         conditional = input.get('conditional')
         timeout = input.get('timeout_in_minutes')
@@ -230,6 +238,7 @@ class BuildkiteStep:
 
         # Optional keys.
         self._set_platform(platform)
+        self._set_hypervisor(hypervisor)
         self._set_conditional(conditional)
         self._add_docker_config(docker)
         self._set_timeout_in_minutes(timeout)
