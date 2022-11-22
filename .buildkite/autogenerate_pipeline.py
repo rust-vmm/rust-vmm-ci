@@ -254,7 +254,7 @@ class BuildkiteStep:
         # forwarding the key, values without any change.
         # We need to filter for keys that have special meaning and which we
         # don't want to re-add.
-        special_keys = ['conditional', 'docker_plugin', 'platform', 'test_name', 'queue']
+        special_keys = ['conditional', 'docker_plugin', 'platform', 'test_name', 'queue', 'hypervisor']
         additional_keys = {k: v for k, v in input.items() if not (k in self.step_config) and
                            not(k in special_keys)}
         if additional_keys:
