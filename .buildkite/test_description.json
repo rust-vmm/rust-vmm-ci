@@ -71,7 +71,7 @@
     },
     {
       "test_name": "cargo-audit",
-      "command": "cargo audit -q --deny warnings"
+      "command": "cargo audit -q --deny warnings --ignore RUSTSEC-2021-0145"
     }
   ]
 }
