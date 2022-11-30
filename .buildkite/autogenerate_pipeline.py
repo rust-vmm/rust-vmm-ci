@@ -69,6 +69,14 @@ AARCH64_AGENT_TAGS = os.getenv('AARCH64_LINUX_AGENT_TAGS')
 DOCKER_PLUGIN_CONFIG = os.getenv('DOCKER_PLUGIN_CONFIG')
 TESTS_TO_SKIP = os.getenv('TESTS_TO_SKIP')
 TIMEOUTS_MIN = os.getenv('TIMEOUTS_MIN')
+# This env allows setting the hypervisor on which the tests are running at the
+# pipeline level. This will not override the hypervisor tag in case one is
+# already specified in the test definition.
+# Most of the repositories don't really need to run on KVM per se, but we are
+# experiencing some timeouts mostly with the mshv hosts right now, and we are
+# fixing the default to kvm to work around that problem.
+# More details here: https://github.com/rust-vmm/community/issues/137
+DEFAULT_AGENT_TAG_HYPERVISOR = os.getenv('DEFAULT_AGENT_TAG_HYPERVISOR', 'kvm')
 
 PARENT_DIR = pathlib.Path(__file__).parent.resolve()
 
@@ -298,6 +306,8 @@ class BuildkiteConfig:
             for platform in platforms:
                 step_input = copy.deepcopy(test)
                 step_input['platform'] = platform
+                if not step_input.get('hypervisor'):
+                    step_input['hypervisor'] = DEFAULT_AGENT_TAG_HYPERVISOR
 
                 step = BuildkiteStep()
                 step_output = step.build(step_input)
