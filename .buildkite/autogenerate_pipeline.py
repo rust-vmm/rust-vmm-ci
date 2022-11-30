@@ -111,7 +111,7 @@ class BuildkiteStep:
                     }
                 }
             ],
-            'timeout_in_minutes': 5
+            'timeout_in_minutes': 15
         }
 
     def _set_platform(self, platform):
