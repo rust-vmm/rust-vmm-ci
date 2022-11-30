@@ -62,7 +62,7 @@ from textwrap import dedent
 # for running the tests.
 CONTAINER_VERSION = "v16"
 # This represents the version of the Buildkite Docker plugin.
-DOCKER_PLUGIN_VERSION = "v3.8.0"
+DOCKER_PLUGIN_VERSION = "v5.3.0"
 
 X86_AGENT_TAGS = os.getenv('X86_LINUX_AGENT_TAGS')
 AARCH64_AGENT_TAGS = os.getenv('AARCH64_LINUX_AGENT_TAGS')
