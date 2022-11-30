@@ -74,6 +74,12 @@ variables.
   https://github.com/buildkite-plugins/docker-buildkite-plugin.
 - `TESTS_TO_SKIP`: specifies a list of tests to be skipped.
 - `TIMEOUTS_MIN`: overrides the timeout value for specific tests.
+- `DEFAULT_AGENT_TAG_HYPERVISOR`: sets the hypervisor on which all the tests in
+  the pipeline run. By default, the selected hypervisor is KVM because the
+  hosts running KVM at the time of this change showed better performance and
+  experienced timeouts less often. NOTE: This will not override the hypervisor
+  defined at the test step level. If a test already defines a hypervisor tag
+  that will remain intact.
 
 The variable `TESTS_TO_SKIP` is specified as a JSON list with the names
 of the tests to be skipped. The variable `TIMEOUTS_MIN` is a dictionary where
