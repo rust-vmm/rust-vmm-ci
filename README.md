@@ -267,7 +267,7 @@ steps:
     platform: arm.metal
   plugins:
   - docker#v3.8.0:
-      image: rustvmm/dev:v16
+      image: rustvmm/dev:v21
       always-pull: true
 ```
 
@@ -328,7 +328,7 @@ cd ~/vm-superio
 CRATE="vm-superio"
 # NOTE: This might not be the latest container version, you can check which one we're using
 # by looking into the .buildkite/autogenerate_pipeline.py file.
-LATEST=16
+LATEST=21
 docker run -it \
            --security-opt seccomp=unconfined \
            --volume $(pwd):/${CRATE} \
