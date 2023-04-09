@@ -216,7 +216,7 @@ To update the coverage before submitting a PR, run the coverage test:
 CRATE="kvm-ioctls"
 # NOTE: This might not be the latest container version, you can check which one we're using
 # by looking into the .buildkite/autogenerate_pipeline.py file.
-LATEST=16
+LATEST=21
 docker run --device=/dev/kvm \
            -it \
            --security-opt seccomp=unconfined \
