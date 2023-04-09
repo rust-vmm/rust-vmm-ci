@@ -226,8 +226,10 @@ cd ${crate}
 pytest --profile=devel rust-vmm-ci/integration_tests/test_coverage.py
 ```
 
-If the PR coverage is higher than the upstream coverage, the coverage file
-needs to be manually added to the commit before submitting the PR:
+Sample coverage_config files:
+
+- [x86](coverage_config_x86_64.json.sample)
+- [aarch64](coverage_config_aarch64.json.sample)
 
 If the PR coverage is higher than the upstream coverage, the coverage file
 needs to be manually added to the commit before submitting the PR. For example:
