@@ -192,7 +192,7 @@ The integration tests support two test profiles:
 The test profiles are applicable to
 [`pytest`](https://docs.pytest.org/en/latest/), the integration test framework
 used with rust-vmm-ci. Currently only the
-[coverage test](tests/test_coverage.py) follows this model as all the other
+[coverage test](integration_tests/test_coverage.py) follows this model as all the other
 integration tests are run using the Buildkite pipeline.
 
 The difference between is declaring tests as passed or failed:
@@ -208,8 +208,9 @@ Further details about the coverage test can be found in the
 
 ### Adaptive Coverage
 
-The line coverage is saved in [tests/coverage](tests/coverage). To update the
-coverage before submitting a PR, run the coverage test:
+The line coverage is saved in either [coverage_config_x86_64.json](coverage_config_x86_64.json) or
+coverage_config_aarch64.json, depending on your machine's architecture. 
+To update the coverage before submitting a PR, run the coverage test:
 
 ```bash
 CRATE="kvm-ioctls"
@@ -228,8 +229,10 @@ pytest --profile=devel rust-vmm-ci/integration_tests/test_coverage.py
 If the PR coverage is higher than the upstream coverage, the coverage file
 needs to be manually added to the commit before submitting the PR:
 
+If the PR coverage is higher than the upstream coverage, the coverage file
+needs to be manually added to the commit before submitting the PR. For example:
 ```bash
-git add tests/coverage
+git add coverage_config_x86_64.json
 ```
 
 Failing to do so will generate a fail on the CI pipeline when publishing the
@@ -237,7 +240,8 @@ PR.
 
 **NOTE:** The coverage file is only updated in the `devel` test profile. In
 the `ci` profile the coverage test will fail if the current coverage is higher
-than the coverage reported in [tests/coverage](tests/coverage).
+than the coverage reported in [coverage_config_x86_64.json](coverage_config_x86_64.json)
+_(or coverage_config_aarch64.json)_.
 
 ### Performance tests
 
