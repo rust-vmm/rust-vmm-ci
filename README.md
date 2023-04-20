@@ -208,8 +208,7 @@ Further details about the coverage test can be found in the
 
 ### Adaptive Coverage
 
-The line coverage is saved in either [coverage_config_x86_64.json](coverage_config_x86_64.json) or
-coverage_config_aarch64.json, depending on your machine's architecture.
+The line coverage is saved in [`coverage_config_x86_64.json`](coverage_config_x86_64.json).
 To update the coverage before submitting a PR, run the coverage test:
 
 ```bash
@@ -228,8 +227,7 @@ pytest --profile=devel rust-vmm-ci/integration_tests/test_coverage.py
 
 Sample coverage_config files:
 
-- [x86](coverage_config_x86_64.json.sample)
-- [aarch64](coverage_config_aarch64.json.sample)
+- **x86**: [`coverage_config_x86_64.json`](coverage_config_x86_64.json)
 
 If the PR coverage is higher than the upstream coverage, the coverage file
 needs to be manually added to the commit before submitting the PR. For example:
