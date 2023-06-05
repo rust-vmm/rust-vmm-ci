@@ -15,7 +15,6 @@ def get_repo_root_path():
 
 def get_cmd_output(cmd):
     """Returns stdout content of `cmd` command."""
-    cmd_out = subprocess.run(cmd, shell=True, check=True,
-                             stdout=subprocess.PIPE)
-    stdout = cmd_out.stdout.decode('utf-8')
+    cmd_out = subprocess.run(cmd, shell=True, check=True, stdout=subprocess.PIPE)
+    stdout = cmd_out.stdout.decode("utf-8")
     return stdout

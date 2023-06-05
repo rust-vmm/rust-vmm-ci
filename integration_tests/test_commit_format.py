@@ -16,14 +16,12 @@ from utils import get_cmd_output
 
 COMMIT_TITLE_MAX_LEN = 60
 COMMIT_BODY_LINE_MAX_LEN = 75
-REMOTE = \
-    os.environ.get('BUILDKITE_REPO') or \
-    os.environ.get('REMOTE') or \
-    "origin"
-BASE_BRANCH = \
-    os.environ.get('BUILDKITE_PULL_REQUEST_BASE_BRANCH') or \
-    os.environ.get('BASE_BRANCH') or \
-    "main"
+REMOTE = os.environ.get("BUILDKITE_REPO") or os.environ.get("REMOTE") or "origin"
+BASE_BRANCH = (
+    os.environ.get("BUILDKITE_PULL_REQUEST_BASE_BRANCH")
+    or os.environ.get("BASE_BRANCH")
+    or "main"
+)
 
 
 def test_commit_format():
@@ -50,8 +48,7 @@ def test_commit_format():
         ) from None
     # Get hashes of PR's commits in their abbreviated form for
     # a prettier printing.
-    shas_cmd = "git log --no-merges --pretty=%h --no-decorate " \
-               "FETCH_HEAD..HEAD"
+    shas_cmd = "git log --no-merges --pretty=%h --no-decorate " "FETCH_HEAD..HEAD"
     shas = get_cmd_output(shas_cmd)
 
     for sha in shas.split():
@@ -63,18 +60,20 @@ def test_commit_format():
         message_cmd = "git show --pretty=format:%B -s " + sha
         message = get_cmd_output(message_cmd)
         message_lines = message.split("\n")
-        assert len(message_lines) >= 3,\
-            "The commit '{}' should contain at least 3 lines: title, " \
-            "blank line and a sign-off one." \
-            .format(sha)
+        assert len(message_lines) >= 3, (
+            "The commit '{}' should contain at least 3 lines: title, "
+            "blank line and a sign-off one.".format(sha)
+        )
         title = message_lines[0]
-        assert message_lines[1] == "",\
-            "For commit '{}', title is divided into multiple lines. " \
-            "Please keep it one line long and make sure you add a blank " \
+        assert message_lines[1] == "", (
+            "For commit '{}', title is divided into multiple lines. "
+            "Please keep it one line long and make sure you add a blank "
             "line between title and description.".format(sha)
-        assert len(title) <= COMMIT_TITLE_MAX_LEN,\
-            "For commit '{}', title exceeds {} chars. " \
+        )
+        assert len(title) <= COMMIT_TITLE_MAX_LEN, (
+            "For commit '{}', title exceeds {} chars. "
             "Please keep it shorter.".format(sha, COMMIT_TITLE_MAX_LEN)
+        )
 
         found_signed_off = False
 
@@ -85,11 +84,13 @@ def test_commit_format():
                 # the commit message ended and we don't want to check
                 # line lengths anymore for the current commit.
                 break
-            assert len(line) <= COMMIT_BODY_LINE_MAX_LEN,\
-                "For commit '{}', message line '{}' exceeds {} chars. " \
-                "Please keep it shorter or split it in " \
-                "multiple lines.".format(sha, line,
-                                         COMMIT_BODY_LINE_MAX_LEN)
-        assert found_signed_off, "Commit '{}' is not signed. " \
-                                 "Please run 'git commit -s --amend' " \
-                                 "on it.".format(sha)
+            assert len(line) <= COMMIT_BODY_LINE_MAX_LEN, (
+                "For commit '{}', message line '{}' exceeds {} chars. "
+                "Please keep it shorter or split it in "
+                "multiple lines.".format(sha, line, COMMIT_BODY_LINE_MAX_LEN)
+            )
+        assert found_signed_off, (
+            "Commit '{}' is not signed. "
+            "Please run 'git commit -s --amend' "
+            "on it.".format(sha)
+        )

@@ -14,14 +14,12 @@ import subprocess
 
 from utils import get_repo_root_path
 
-REMOTE = \
-    os.environ.get('BUILDKITE_REPO') or \
-    os.environ.get('REMOTE') or \
-    "origin"
-BASE_BRANCH = \
-    os.environ.get('BUILDKITE_PULL_REQUEST_BASE_BRANCH') or \
-    os.environ.get('BASE_BRANCH') or \
-    "main"
+REMOTE = os.environ.get("BUILDKITE_REPO") or os.environ.get("REMOTE") or "origin"
+BASE_BRANCH = (
+    os.environ.get("BUILDKITE_PULL_REQUEST_BASE_BRANCH")
+    or os.environ.get("BASE_BRANCH")
+    or "main"
+)
 # File used for saving the results of cargo bench
 # when running on the PR branch.
 PR_BENCH_RESULTS_FILE = "pr_bench_results"
@@ -67,12 +65,9 @@ def test_bench():
             # This is a bit of a &*%^ way of checking if the benchmark does not
             # exist. Hopefully it will be possible to check it in another way
             # ...soon
-            print(
-                "There are no benchmarks in main. No comparison can happen."
-            )
+            print("There are no benchmarks in main. No comparison can happen.")
         else:
-            assert return_code == 0, "stdout: {}\n stderr: {}".format(
-                stdout, stderr)
+            assert return_code == 0, "stdout: {}\n stderr: {}".format(stdout, stderr)
 
 
 def _run_cargo_bench(baseline):
@@ -80,43 +75,44 @@ def _run_cargo_bench(baseline):
     process = subprocess.run(
         "cargo bench --bench main --all-features -- --noplot "
         "--save-baseline {}".format(baseline),
-        shell=True, stderr=subprocess.PIPE, stdout=subprocess.PIPE
+        shell=True,
+        stderr=subprocess.PIPE,
+        stdout=subprocess.PIPE,
     )
 
-    return process.returncode, process.stdout.decode('utf-8'),\
-        process.stderr.decode('utf-8')
+    return (
+        process.returncode,
+        process.stdout.decode("utf-8"),
+        process.stderr.decode("utf-8"),
+    )
 
 
 def _run_critcmp():
     p = subprocess.run(
-        "critcmp {} {}".format(
-            UPSTREAM_BENCH_RESULTS_FILE, PR_BENCH_RESULTS_FILE
-        ),
-        shell=True, check=True,
+        "critcmp {} {}".format(UPSTREAM_BENCH_RESULTS_FILE, PR_BENCH_RESULTS_FILE),
+        shell=True,
+        check=True,
         stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE
+        stderr=subprocess.PIPE,
     )
 
-    print(p.stdout.decode('utf-8'))
-    print('ERRORS')
-    print(p.stderr.decode('utf-8'))
+    print(p.stdout.decode("utf-8"))
+    print("ERRORS")
+    print(p.stderr.decode("utf-8"))
 
 
 def _git_checkout_upstream_branch():
     subprocess.run(
-        "git fetch {} {}".format(REMOTE, BASE_BRANCH),
-        shell=True, check=True
+        "git fetch {} {}".format(REMOTE, BASE_BRANCH), shell=True, check=True
     )
-    subprocess.run(
-        "git checkout FETCH_HEAD",
-        shell=True, check=True
-    )
+    subprocess.run("git checkout FETCH_HEAD", shell=True, check=True)
 
 
 def _git_checkout_pr_branch():
     subprocess.run(
         "git checkout -",
-        shell=True, check=True,
+        shell=True,
+        check=True,
         stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE
+        stderr=subprocess.PIPE,
     )

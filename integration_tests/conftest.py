@@ -15,28 +15,22 @@ def pytest_addoption(parser):
         "--profile",
         default=PROFILE_CI,
         choices=[PROFILE_CI, PROFILE_DEVEL],
-        help="Profile for running the test: {} or {}".format(
-            PROFILE_CI,
-            PROFILE_DEVEL
-        )
+        help="Profile for running the test: {} or {}".format(PROFILE_CI, PROFILE_DEVEL),
     )
     parser.addoption(
         "--no-cleanup",
         action="store_true",
         default=False,
         help="Keep the coverage report in `kcov_output` directory. If this "
-             "flag is not provided, both coverage related directories are "
-             "removed."
+        "flag is not provided, both coverage related directories are "
+        "removed.",
     )
 
     parser.addoption(
         "--test-scope",
         default=WORKSPACE,
         choices=[WORKSPACE, CRATE],
-        help="Defines the scope of running tests: {} or {}".format(
-            WORKSPACE,
-            CRATE
-        )
+        help="Defines the scope of running tests: {} or {}".format(WORKSPACE, CRATE),
     )
 
 
