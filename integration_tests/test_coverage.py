@@ -128,20 +128,26 @@ def _get_current_coverage(coverage_config, no_cleanup, test_scope):
 
 
 def test_coverage(profile, no_cleanup, test_scope):
+    MAX_DELTA = 0.5
+
     coverage_config = _read_test_config()
     current_coverage = _get_current_coverage(coverage_config, no_cleanup, test_scope)
     previous_coverage = coverage_config["coverage_score"]
-    diff = abs(float(previous_coverage - current_coverage))
-    if diff > 0.5:
+    diff = previous_coverage - current_coverage
+    upper = previous_coverage + MAX_DELTA
+    arch = platform.machine()
+
+    msg = (
+        f"Current code coverage ({current_coverage:.2f}%) deviates by {diff:.2f}% from the previous code coverage {previous_coverage:.2f}%."
+        f"Current code coverage must be within the range {previous_coverage:.2f}%..{upper:.2f}%."
+        f"Please update the coverage in `coverage_config_{arch}.json`."
+    )
+
+    if abs(diff) > MAX_DELTA:
         if previous_coverage < current_coverage:
             if profile == pytest.profile_ci:
                 # In the CI Profile we expect the coverage to be manually updated.
-                assert False, (
-                    "Coverage is increased from {} to {}. "
-                    "Please update the coverage in coverage_config_{}.json.".format(
-                        previous_coverage, current_coverage, platform.machine()
-                    )
-                )
+                raise msg
             elif profile == pytest.profile_devel:
                 coverage_config["coverage_score"] = current_coverage
                 _write_coverage_config(coverage_config)
@@ -149,9 +155,6 @@ def test_coverage(profile, no_cleanup, test_scope):
                 # This should never happen because pytest should only accept
                 # the valid test profiles specified with `choices` in
                 # `pytest_addoption`.
-                assert False, "Invalid test profile."
+                raise "Invalid test profile."
         elif previous_coverage > current_coverage:
-            assert False, (
-                "Coverage drops by {:.2f}%. Please add unit tests for "
-                "the uncovered lines.".format(diff)
-            )
+            raise msg
