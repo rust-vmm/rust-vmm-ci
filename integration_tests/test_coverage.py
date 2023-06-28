@@ -147,7 +147,7 @@ def test_coverage(profile, no_cleanup, test_scope):
         if previous_coverage < current_coverage:
             if profile == pytest.profile_ci:
                 # In the CI Profile we expect the coverage to be manually updated.
-                raise msg
+                raise ValueError(msg)
             elif profile == pytest.profile_devel:
                 coverage_config["coverage_score"] = current_coverage
                 _write_coverage_config(coverage_config)
@@ -155,6 +155,6 @@ def test_coverage(profile, no_cleanup, test_scope):
                 # This should never happen because pytest should only accept
                 # the valid test profiles specified with `choices` in
                 # `pytest_addoption`.
-                raise "Invalid test profile."
+                raise RuntimeError("Invalid test profile.")
         elif previous_coverage > current_coverage:
-            raise msg
+            raise ValueError(msg)
