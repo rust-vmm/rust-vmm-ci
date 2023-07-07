@@ -28,9 +28,8 @@ def test_commit_format():
     """
     Checks commit message format for the current PR's commits.
 
-    Checks if commit messages follow the 60/75 commit rule (a maximum
-    60 characters for the title and 75 characters for description
-    lines) and if commits are signed.
+    Checks if commit messages do not have exceedingly long titles (a maximum 60
+    characters for the title) and if commits are signed.
     """
     # Newer versions of git check the ownership of directories.
     # We need to add an exception for /workdir which is shared, so that
@@ -80,15 +79,8 @@ def test_commit_format():
         for line in message_lines[2:]:
             if line.startswith("Signed-off-by: "):
                 found_signed_off = True
-                # If we found `Signed-off-by` line, then it means
-                # the commit message ended and we don't want to check
-                # line lengths anymore for the current commit.
                 break
-            assert len(line) <= COMMIT_BODY_LINE_MAX_LEN, (
-                "For commit '{}', message line '{}' exceeds {} chars. "
-                "Please keep it shorter or split it in "
-                "multiple lines.".format(sha, line, COMMIT_BODY_LINE_MAX_LEN)
-            )
+
         assert found_signed_off, (
             "Commit '{}' is not signed. "
             "Please run 'git commit -s --amend' "
