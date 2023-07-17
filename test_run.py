@@ -48,9 +48,10 @@ if __name__ == "__main__":
 
     test_config = retrieve_test_list()
     for test in test_config["tests"]:
+        name = test["test_name"]
         command = test["command"]
         command = command.replace("{target_platform}", platform.machine())
         test_func = make_test_function(command)
-        setattr(TestsContainer, "test_{}".format(test["test_name"]), test_func)
+        setattr(TestsContainer, f"test_{name}", test_func)
 
     unittest.main(verbosity=2)
