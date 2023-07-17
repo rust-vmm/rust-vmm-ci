@@ -44,14 +44,26 @@ if __name__ == "__main__":
         """
     )
     parser = ArgumentParser(description=help_text, formatter_class=RawTextHelpFormatter)
-    parser.parse_args()
+    parser.add_argument(
+        "-l",
+        "--list-tests",
+        action="store_true",
+        default=False,
+        help="List available tests",
+    )
+    args = parser.parse_args()
 
     test_config = retrieve_test_list()
+
     for test in test_config["tests"]:
         name = test["test_name"]
         command = test["command"]
         command = command.replace("{target_platform}", platform.machine())
-        test_func = make_test_function(command)
-        setattr(TestsContainer, f"test_{name}", test_func)
+        if args.list_tests:
+            print(f"{name}: {command}")
+        else:
+            test_func = make_test_function(command)
+            setattr(TestsContainer, f"test_{name}", test_func)
 
-    unittest.main(verbosity=2)
+    if not args.list_tests:
+        unittest.main(verbosity=2)
