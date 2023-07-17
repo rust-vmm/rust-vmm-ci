@@ -51,12 +51,22 @@ if __name__ == "__main__":
         default=False,
         help="List available tests",
     )
+    parser.add_argument(
+        "tests",
+        nargs="*",
+        help="The tests to run. If none are specified run all the available tests.",
+    )
     args = parser.parse_args()
 
     test_config = retrieve_test_list()
 
     for test in test_config["tests"]:
         name = test["test_name"]
+
+        if len(args.tests) > 0:
+            if name not in args.tests:
+                continue
+
         command = test["command"]
         command = command.replace("{target_platform}", platform.machine())
         if args.list_tests:
@@ -66,4 +76,5 @@ if __name__ == "__main__":
             setattr(TestsContainer, f"test_{name}", test_func)
 
     if not args.list_tests:
-        unittest.main(verbosity=2)
+        tests_suite = unittest.TestLoader().loadTestsFromTestCase(TestsContainer)
+        unittest.TextTestRunner(verbosity=2).run(tests_suite)
