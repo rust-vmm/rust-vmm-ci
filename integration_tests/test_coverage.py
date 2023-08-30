@@ -65,64 +65,43 @@ def _write_coverage_config(coverage_config):
 
 
 def _get_current_coverage(coverage_config, no_cleanup, test_scope):
-    """Helper function that returns the coverage computed with kcov."""
-    kcov_output_dir = os.path.join(REPO_ROOT_PATH, "kcov_output")
-
+    """Helper function that returns the coverage computed with llvm-cov."""
     # By default the build output for kcov and unit tests are both in the debug
     # directory. This causes some linker errors that I haven't investigated.
     # Error: error: linking with `cc` failed: exit code: 1
     # An easy fix is to have separate build directories for kcov & unit tests.
-    kcov_build_dir = os.path.join(REPO_ROOT_PATH, "kcov_build")
+    cov_build_dir = os.path.join(REPO_ROOT_PATH, "cov_build")
 
     # Remove kcov output and build directory to be sure we are always working
     # on a clean environment.
-    shutil.rmtree(kcov_output_dir, ignore_errors=True)
-    shutil.rmtree(kcov_build_dir, ignore_errors=True)
+    shutil.rmtree(cov_build_dir, ignore_errors=True)
 
-    exclude_pattern = "${CARGO_HOME:-$HOME/.cargo/}," "usr/lib/," "lib/"
-    exclude_region = "'mod tests {'"
+    llvm_cov_command = f"CARGO_TARGET_DIR={cov_build_dir} cargo llvm-cov test --summary-only"
+
     additional_exclude_path = coverage_config["exclude_path"]
     if additional_exclude_path:
-        exclude_pattern += "," + additional_exclude_path
-
-    additional_kcov_param = ""
+        llvm_cov_command += f" --ignore-filename-regex {additional_exclude_path}"
 
     if test_scope == pytest.workspace:
-        additional_kcov_param += "--all "
+        llvm_cov_command += " --workspace "
 
     crate_features = coverage_config["crate_features"]
     if crate_features:
-        additional_kcov_param += "--features=" + crate_features
-
-    kcov_cmd = (
-        "CARGO_TARGET_DIR={} cargo kcov {} "
-        "--output {} -- "
-        "--exclude-region={} "
-        "--exclude-pattern={} "
-        "--verify".format(
-            kcov_build_dir,
-            additional_kcov_param,
-            kcov_output_dir,
-            exclude_region,
-            exclude_pattern,
-        )
-    )
+        llvm_cov_command += " --features=" + crate_features
 
     # Pytest closes stdin by default, but some tests might need it to be open.
     # In the future, should the need arise, we can feed custom data to stdin.
-    subprocess.run(kcov_cmd, shell=True, check=True, input=b"")
+    result = subprocess.run(llvm_cov_command, shell=True, check=True, input=b"", stdout=subprocess.PIPE)
 
-    # Read the coverage reported by kcov.
-    coverage_file = os.path.join(kcov_output_dir, "index.js")
-    with open(coverage_file) as cov_output:
-        coverage = float(re.findall(r'"covered":"(\d+\.\d)"', cov_output.read())[0])
+    summary = result.stdout.split(b'\n')[-2]
+    # Output of llvm-cov is like
+    #   TOTAL 743 153 79.41% 185 50 72.97% 1531 125 91.84% 0 0 -
+    # where the first three numbers are related to region coverage, and next three to line coverage (what we want)
+    # and the last three to branch coverage (which is not yet supported). Below grabs the line coverage, and strips
+    # off the '%'.
+    coverage = float(summary.split()[6][:-1])
 
-    # Remove coverage related directories.
-    # If user provided `--no-cleanup` flag, `kcov_output_dir`
-    # should not be removed.
-    if not no_cleanup:
-        shutil.rmtree(kcov_output_dir, ignore_errors=True)
-    shutil.rmtree(kcov_build_dir, ignore_errors=True)
+    shutil.rmtree(cov_build_dir, ignore_errors=True)
 
     return coverage
 
