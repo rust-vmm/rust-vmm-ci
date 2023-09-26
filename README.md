@@ -51,7 +51,7 @@ to the repository as well.
 
 3. Create a new pipeline definition in Buildkite. For this step ask one of the
 rust-vmm Buildkite [admins](CODEOWNERS) to create one for you. The process is explained
-[here](https://github.com/rust-vmm/community/blob/main/docs/maintainers/setup_new_repo.md#set-up-ci).
+[here](https://github.com/rust-vmm/community/blob/main/docs/setup_new_repo.md#set-up-ci).
 
 4. There is a script that autogenerates a dynamic Buildkite pipeline. Each step
 in the pipeline has a default timeout of 5 minutes. To run the CI using this dynamic pipeline,
