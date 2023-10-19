@@ -82,7 +82,7 @@ def _get_current_coverage(coverage_config, no_cleanup, test_scope):
 
     additional_exclude_path = coverage_config["exclude_path"]
     if additional_exclude_path:
-        llvm_cov_command += f" --ignore-filename-regex {additional_exclude_path}"
+        llvm_cov_command += f" --ignore-filename-regex \"{additional_exclude_path}\""
 
     if test_scope == pytest.workspace:
         llvm_cov_command += " --workspace "
