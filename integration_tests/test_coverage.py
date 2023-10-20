@@ -76,11 +76,13 @@ def _get_current_coverage(coverage_config, no_cleanup, test_scope):
     # on a clean environment.
     shutil.rmtree(cov_build_dir, ignore_errors=True)
 
-    llvm_cov_command = f"CARGO_TARGET_DIR={cov_build_dir} cargo llvm-cov test --summary-only"
+    llvm_cov_command = (
+        f"CARGO_TARGET_DIR={cov_build_dir} cargo llvm-cov test --summary-only"
+    )
 
     additional_exclude_path = coverage_config["exclude_path"]
     if additional_exclude_path:
-        llvm_cov_command += f" --ignore-filename-regex {additional_exclude_path}"
+        llvm_cov_command += f" --ignore-filename-regex \"{additional_exclude_path}\""
 
     if test_scope == pytest.workspace:
         llvm_cov_command += " --workspace "
@@ -91,9 +93,11 @@ def _get_current_coverage(coverage_config, no_cleanup, test_scope):
 
     # Pytest closes stdin by default, but some tests might need it to be open.
     # In the future, should the need arise, we can feed custom data to stdin.
-    result = subprocess.run(llvm_cov_command, shell=True, check=True, input=b"", stdout=subprocess.PIPE)
+    result = subprocess.run(
+        llvm_cov_command, shell=True, check=True, input=b"", stdout=subprocess.PIPE
+    )
 
-    summary = result.stdout.split(b'\n')[-2]
+    summary = result.stdout.split(b"\n")[-2]
     # Output of llvm-cov is like
     #   TOTAL 743 153 79.41% 185 50 72.97% 1531 125 91.84% 0 0 -
     # where the first three numbers are related to region coverage, and next three to line coverage (what we want)
