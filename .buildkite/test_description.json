@@ -71,7 +71,7 @@
     },
     {
       "test_name": "cargo-audit",
-      "command": "cargo audit -q --deny warnings",
+      "command": "[ -e Cargo.lock ] || cargo generate-lockfile; cargo audit -q --deny warnings",
       "platform": [
         "x86_64"
       ]
