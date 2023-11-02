@@ -116,7 +116,7 @@ def test_coverage(profile, no_cleanup, test_scope):
     coverage_config = _read_test_config()
     current_coverage = _get_current_coverage(coverage_config, no_cleanup, test_scope)
     previous_coverage = coverage_config["coverage_score"]
-    diff = previous_coverage - current_coverage
+    diff = current_coverage - previous_coverage
     upper = previous_coverage + MAX_DELTA
     arch = platform.machine()
 
