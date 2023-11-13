@@ -4,6 +4,8 @@ The `rust-vmm-ci` repository contains [integration tests](#integration-tests)
 and [Buildkite pipeline](#buildkite-pipeline) definitions that are used for
 running the CI for all rust-vmm crates.
 
+CI tests are executed on the container image maintained at [rust-vmm/rust-vmm-container repo](https://github.com/rust-vmm/rust-vmm-container) with builds available on [Docker Hub](https://hub.docker.com/r/rustvmm/dev/tags).
+
 Having a centralized place for the tests is one of the enablers for keeping the
 same quality standard for all crates in rust-vmm.
 
@@ -188,7 +190,7 @@ The integration tests support two test profiles:
 - **devel**: this is the recommended profile for running the integration tests
   on a local development machine.
 - **ci** (default option): this is the profile used when running the
-  integration tests as part of the the Continuous Integration (CI).
+  integration tests as part of the Continuous Integration (CI).
 
 The test profiles are applicable to
 [`pytest`](https://docs.pytest.org/en/latest/), the integration test framework
