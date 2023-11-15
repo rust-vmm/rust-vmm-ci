@@ -60,7 +60,7 @@ from textwrap import dedent
 
 # This represents the version of the rust-vmm-container used
 # for running the tests.
-CONTAINER_VERSION = "v29"
+CONTAINER_VERSION = "v30"
 # This represents the version of the Buildkite Docker plugin.
 DOCKER_PLUGIN_VERSION = "v5.3.0"
 
