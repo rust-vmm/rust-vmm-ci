@@ -36,6 +36,13 @@
       ]
     },
     {
+      "test_name": "unittests-gnu",
+      "command": "cargo test --no-run --target=riscv64gc-unknown-linux-gnu --config target.riscv64gc-unknown-linux-gnu.linker=\\\"riscv64-linux-gnu-gcc\\\" && qemu.sh",
+      "platform": [
+	"riscv64"
+      ]
+    },
+    {
       "test_name": "unittests-musl",
       "command": "cargo test --all-features --workspace --target {target_platform}-unknown-linux-musl",
       "platform": [
