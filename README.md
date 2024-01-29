@@ -52,11 +52,19 @@ The json must have the following fields:
 This file is required for the coverage integration so it needs to be added
 to the repository as well.
 
-3. Create a new pipeline definition in Buildkite. For this step ask one of the
+3. Copy one of the two provided dependabot configurations to `.github/dependabot.yml`,
+   e.g. run `cp rust-vmm-ci/dependabot-{weekly,monthly}.yml .github/dependabot.yml`.
+   Note that just symlinking the file does not work, as dependabot will not
+   follow symlinks into submodules. This means that updates to these files made in
+   rust-vmm-ci will need to be manually consumed for now. We recommend setting up
+   weekly dependabot updates only if the crate receives multiple contributions a week,
+   and if you expect to have the bandwidth to address weekly dependency PRs.
+
+4. Create a new pipeline definition in Buildkite. For this step ask one of the
 rust-vmm Buildkite [admins](CODEOWNERS) to create one for you. The process is explained
 [here](https://github.com/rust-vmm/community/blob/main/docs/setup_new_repo.md#set-up-ci).
 
-4. There is a script that autogenerates a dynamic Buildkite pipeline. Each step
+5. There is a script that autogenerates a dynamic Buildkite pipeline. Each step
 in the pipeline has a default timeout of 5 minutes. To run the CI using this dynamic pipeline,
 you need to add a step that is uploading the rust-vmm-ci pipeline:
 ```bash
@@ -108,7 +116,7 @@ For most use cases, overriding or extending the configuration is not necessary. 
 want to do so if, for example, the platform needs a custom device that is not available
 on the existing test instances or if we need a specialized hypervisor.
 
-5. The code owners of the repository will have to setup a WebHook for
+6. The code owners of the repository will have to setup a WebHook for
 triggering the CI on
 [pull request](https://developer.github.com/v3/activity/events/types/#pullrequestevent)
 and [push](https://developer.github.com/v3/activity/events/types/#pushevent)
