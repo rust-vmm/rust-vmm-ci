@@ -1,8 +1,8 @@
 # rust-vmm-ci
-
 The `rust-vmm-ci` repository contains [integration tests](#integration-tests)
 and [Buildkite pipeline](#buildkite-pipeline) definitions that are used for
-running the CI for all rust-vmm crates.
+running the CI for all rust-vmm crates, as well as [git hooks](#git-hooks)
+to ensure quality and consistency with the rust-vmm commit message standards.
 
 CI tests are executed on the container image maintained at [rust-vmm/rust-vmm-container repo](https://github.com/rust-vmm/rust-vmm-container) with builds available on [Docker Hub](https://hub.docker.com/r/rustvmm/dev/tags).
 
@@ -15,6 +15,7 @@ To run the integration tests defined in the pipeline as part of the CI:
 
 1. Add rust-vmm-ci as a git submodule to your repository
 
+Adding rust-vmm-ci to new repos:
 ```bash
 # Add rust-vmm-ci as a submodule. This will point to the latest rust-vmm-ci
 # commit from the main branch. The following command will also add a
@@ -23,6 +24,12 @@ git submodule add https://github.com/rust-vmm/rust-vmm-ci.git
 # Commit the changes to your repository so that the CI can run using the
 # rust-vmm-ci pipeline and tests.
 git commit -s -m "Added rust-vmm-ci as submodule"
+```
+
+Initializing rust-vmm-ci in cloned rust-vmm repos with existing
+uninitialized rust-vmm-ci submodule:
+```bash
+git submodule update --init
 ```
 
 2. Create the coverage test configuration file named
@@ -121,6 +128,33 @@ triggering the CI on
 [pull request](https://developer.github.com/v3/activity/events/types/#pullrequestevent)
 and [push](https://developer.github.com/v3/activity/events/types/#pushevent)
 events.
+
+## Git Hooks
+To ensure consistency and quality across commit messages in your repository, rust-vmm-ci
+includes git hooks located at `rust-vmm-ci/git-hooks/`. Hooks are programs
+that trigger actions at certain points in git's execution.
+
+### Commit-Msg
+This hook is designed to automatically check your commit messages against with the 
+rust-vmm commit message standards.
+
+To utilize this hook for checking commit messages in your local repository, follow 
+these steps:
+
+1. Copy the Hook
+After adding rust-vmm-ci as a submodule, copy the commit-msg hook from the submodule's
+git-hooks directory to your repository's .git/hooks directory. You can do this with
+the following command from the root of your repository:
+
+```shell
+cp rust-vmm-ci/git-hooks/commit-msg .git/hooks/
+```
+
+2. Make the Hook Executable
+For the hook to run, it must be executable. Change its permissions accordingly:
+```shell
+chmod +x .git/hooks/commit-msg
+```
 
 ## Buildkite Pipeline
 
