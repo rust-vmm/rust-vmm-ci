@@ -1,0 +1,52 @@
+#!/usr/bin/env python3
+"""
+Commit-msg hook to check the commit message format.
+Ensures commit messages do not have exceedingly long titles (maximum 60 characters for the title)
+and that commits are signed.
+"""
+
+import sys
+
+COMMIT_TITLE_MAX_LEN = 60
+COMMIT_BODY_LINE_MAX_LEN = 75
+
+def get_commit_message(commit_msg_filepath):
+    """Retrieve the commit message from the provided file path."""
+    with open(commit_msg_filepath, 'r') as file:
+        return file.read()
+
+def main(commit_msg_filepath):
+    message = get_commit_message(commit_msg_filepath)
+    message_lines = message.split("\n")
+    
+    # Check for long commit title
+    if not message_lines or len(message_lines[0]) > COMMIT_TITLE_MAX_LEN:
+        print(f"Error: Commit title is too long (maximum {COMMIT_TITLE_MAX_LEN} characters allowed). Title: '{message_lines[0]}'")
+        sys.exit(1)
+
+    # Ensure there is a blank line following the title
+    if len(message_lines) < 3 or message_lines[1] != "":
+        error_line = "None" if len(message_lines) < 2 else message_lines[1]
+        print(f"Error: The commit message should contain at least 3 lines: title, blank line, and description/sign-off. Problematic line: '{error_line}'")
+        sys.exit(1)
+
+    # Check for a signed-off message
+    found_signed_off = False
+    for line in message_lines[2:]:
+        if line.startswith("Signed-off-by: "):
+            found_signed_off = True
+            break
+        if len(line) > COMMIT_BODY_LINE_MAX_LEN:
+            print(f"Error: Line in commit body exceeds {COMMIT_BODY_LINE_MAX_LEN} characters. Line: '{line}'")
+            sys.exit(1)
+
+    if not found_signed_off:
+        print("Error: Commit is not signed. Please sign off your commit by running 'git commit -s'.")
+        sys.exit(1)
+
+if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        print("Error: No commit message file path provided.")
+        sys.exit(1)
+    main(sys.argv[1])
+
