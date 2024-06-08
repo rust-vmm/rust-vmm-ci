@@ -9,6 +9,13 @@
       ]
     },
     {
+      "test_name": "build-riscv-gnu",
+      "command": "RUSTFLAGS=\"-D warnings\" cargo build --release --target=riscv64gc-unknown-linux-gnu --config target.riscv64gc-unknown-linux-gnu.linker=\\\"riscv64-linux-gnu-gcc\\\" --config target.riscv64gc-unknown-linux-gnu.runner=\\\"/usr/bin/qemu-riscv64-static\\\"",
+      "platform": [
+        "x86_64"
+      ]
+    },
+    {
       "test_name": "build-musl",
       "command": "RUSTFLAGS=\"-D warnings\" cargo build --release --target {target_platform}-unknown-linux-musl",
       "platform": [
@@ -26,6 +33,13 @@
       "platform": [
         "x86_64",
         "aarch64"
+      ]
+    },
+    {
+      "test_name": "unittests-riscv-gnu",
+      "command": "RUSTFLAGS=\"-D warnings\" cargo test --all-features --target=riscv64gc-unknown-linux-gnu --config target.riscv64gc-unknown-linux-gnu.linker=\\\"riscv64-linux-gnu-gcc\\\" --config target.riscv64gc-unknown-linux-gnu.runner=\\\"/usr/bin/qemu-riscv64-static\\\"",
+      "platform": [
+        "x86_64"
       ]
     },
     {
