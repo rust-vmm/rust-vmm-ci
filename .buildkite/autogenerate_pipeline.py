@@ -61,6 +61,7 @@ from textwrap import dedent
 # This represents the version of the rust-vmm-container used
 # for running the tests.
 CONTAINER_VERSION = "v34"
+CONTAINER_RISCV64_VERSION = "v1"
 # This represents the version of the Buildkite Docker plugin.
 DOCKER_PLUGIN_VERSION = "v5.3.0"
 
@@ -122,6 +123,9 @@ class BuildkiteStep:
             # setting the tags on the host.
             if platform == "aarch64":
                 platform = "arm"
+            elif platform == "riscv64":
+                # Currently riscv64 CI runs in QEMU running on x86_64
+                platform = "x86_64"
             self.step_config["agents"]["platform"] = f"{platform}.metal"
 
     def _set_hypervisor(self, hypervisor):
@@ -146,6 +150,12 @@ class BuildkiteStep:
         """Set the agent queue if provided in the json input."""
         if queue:
             self.step_config["agents"]["queue"] = queue
+
+    def _set_docker_image(self, platform):
+        """Override docker image for riscv64 CI"""
+        if platform:
+            if platform == "riscv64":
+                self.step_config["plugins"][0][f"docker#{DOCKER_PLUGIN_VERSION}"]["image"] = f"rustvmm/dev_riscv64:{CONTAINER_RISCV64_VERSION}"
 
     def _add_docker_config(self, cfg):
         """Add configuration for docker if given in the json input."""
@@ -246,6 +256,7 @@ class BuildkiteStep:
         self._add_docker_config(docker)
         self._set_timeout_in_minutes(timeout)
         self._set_agent_queue(queue)
+        self._set_docker_image(platform)
 
         # Override/add configuration from environment variables.
         self._env_override_agent_tags(test_name)
