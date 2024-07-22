@@ -80,6 +80,10 @@ variables.
   agent is selected. The default values are
 
   `{"os": "linux", "platform": "arm.metal"}`
+- `RISCV64_LINUX_AGENT_TAGS`: overrides the tags by which the riscv64 linux
+  agent is selected. The default values are
+
+  `{"os": "linux", "platform": "riscv64.metal"}`
 - `DOCKER_PLUGIN_CONFIG`: specifies additional configuration for the docker
   plugin. For available configuration, please check the
   https://github.com/buildkite-plugins/docker-buildkite-plugin.
@@ -128,7 +132,8 @@ The [Buildkite](https://buildkite.com) pipeline is the definition of tests to
 be run as part of the CI. It includes steps for running unit tests and linters
 (including coding style checks), and computing the coverage.
 
-Currently the tests can run on Linux `x86_64` and `aarch64` hosts.
+Currently the tests can run on Linux `x86_64` and `aarch64` hosts, and `riscv64`
+experimentally.
 
 Example of step that checks the build:
 

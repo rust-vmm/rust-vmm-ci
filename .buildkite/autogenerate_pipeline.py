@@ -20,6 +20,8 @@ configurations through environment variables:
   selected.
 - `AARCH64_LINUX_AGENT_TAGS`: overrides the tags by which the aarch64 linux
   agent is selected.
+- `RISCV64_LINUX_AGENT_TAGS`: overrides the tags by which the riscv64 linux
+  agent is selected.
 - `DOCKER_PLUGIN_CONFIG`: specifies additional configuration for the docker
   plugin. For available configuration, please check the
   https://github.com/buildkite-plugins/docker-buildkite-plugin.
@@ -66,6 +68,7 @@ DOCKER_PLUGIN_VERSION = "v5.3.0"
 
 X86_AGENT_TAGS = os.getenv("X86_LINUX_AGENT_TAGS")
 AARCH64_AGENT_TAGS = os.getenv("AARCH64_LINUX_AGENT_TAGS")
+RISCV64_AGENT_TAGS = os.getenv("RISCV64_LINUX_AGENT_TAGS")
 DOCKER_PLUGIN_CONFIG = os.getenv("DOCKER_PLUGIN_CONFIG")
 TESTS_TO_SKIP = os.getenv("TESTS_TO_SKIP")
 TIMEOUTS_MIN = os.getenv("TIMEOUTS_MIN")
@@ -85,7 +88,8 @@ class BuildkiteStep:
     """
     This builds a Buildkite step according to a json configuration and the
     environment variables `X86_LINUX_AGENT_TAGS`, `AARCH64_LINUX_AGENT_TAGS`,
-    `DOCKER_PLUGIN_CONFIG`, `TESTS_TO_SKIP` and `TIMEOUTS_MIN`.
+    `RISCV64_LINUX_AGENT_TAGS` `DOCKER_PLUGIN_CONFIG`, `TESTS_TO_SKIP` and
+    `TIMEOUTS_MIN`.
     The output is a dictionary.
     """
 
@@ -178,9 +182,9 @@ class BuildkiteStep:
 
     def _env_override_agent_tags(self, test_name):
         """
-        Override the tags by which the linux agent is selected
-        using the `X86_LINUX_AGENT_TAGS` and `AARCH64_LINUX_AGENT_TAGS`
-        environment variables.
+        Override the tags by which the linux agent is selected using the
+        `X86_LINUX_AGENT_TAGS`, `AARCH64_LINUX_AGENT_TAGS` and
+        `RISCV64_LINUX_AGENT_TAGS` environment variables.
         """
 
         env_var = None
@@ -193,6 +197,8 @@ class BuildkiteStep:
                 env_var = X86_AGENT_TAGS
             if platform == "arm.metal" and AARCH64_AGENT_TAGS:
                 env_var = AARCH64_AGENT_TAGS
+            if platform == "riscv64.metal" and RISCV64_AGENT_TAGS:
+                env_var = RISCV64_AGENT_TAGS
 
         target = self.step_config["agents"]
         self._env_change_config(test_name, env_var, target, override=True)
@@ -342,6 +348,8 @@ if __name__ == "__main__":
         - X86_LINUX_AGENT_TAGS: overrides the tags by which the x86_64 linux
         agent is selected.
         - AARCH64_LINUX_AGENT_TAGS: overrides the tags by which the aarch64
+        linux agent is selected.
+        - RISCV64_LINUX_AGENT_TAGS: overrides the tags by which the riscv64
         linux agent is selected.
         - DOCKER_PLUGIN_CONFIG: specifies additional configuration for the
         docker plugin. For available configuration, please check
