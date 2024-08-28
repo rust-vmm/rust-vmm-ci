@@ -60,7 +60,12 @@ from textwrap import dedent
 
 # This represents the version of the rust-vmm-container used
 # for running the tests.
-CONTAINER_VERSION = "v38"
+CONTAINER_VERSION = "v44"
+# The suffix suggests that the dev image with `v{N}-riscv` tag is not to be
+# confused with real `riscv64` image (it's actually a `x86_64` image with
+# `qemu-system-riscv64` installed), since AWS yet has `riscv64` machines
+# available.
+CONTAINER_VERSION_RISCV = CONTAINER_VERSION + "-riscv"
 # This represents the version of the Buildkite Docker plugin.
 DOCKER_PLUGIN_VERSION = "v5.3.0"
 
@@ -78,8 +83,7 @@ TIMEOUTS_MIN = os.getenv("TIMEOUTS_MIN")
 # More details here: https://github.com/rust-vmm/community/issues/137
 DEFAULT_AGENT_TAG_HYPERVISOR = os.getenv("DEFAULT_AGENT_TAG_HYPERVISOR", "kvm")
 
-PARENT_DIR = pathlib.Path(__file__).parent.resolve()
-
+BUILDKITE_PATH = pathlib.Path(__file__).parent.resolve()
 
 class BuildkiteStep:
     """
@@ -237,6 +241,17 @@ class BuildkiteStep:
         if "{target_platform}" in command:
             assert platform, "Command requires platform, but platform is missing."
             command = command.replace("{target_platform}", platform)
+        # Modify command and tag name for `riscv64` CI
+        if platform == "riscv64":
+            # Wrap command with '' to avoid escaping early by `ENTRYPOINT`
+            command = json.dumps(command)
+            # Overwrite image tag for riscv64 platform CI
+            self.step_config["plugins"][0][f"docker#{DOCKER_PLUGIN_VERSION}"]["image"] = f"rustvmm/dev:{CONTAINER_VERSION_RISCV}"
+            # Since we are using qemu-system inside a x86_64 container, we
+            # should set `platform` field to x86_64 and unset the hypervisor to
+            # be passed
+            platform = "x86_64"
+            hypervisor = ""
         self.step_config["command"] = command
 
         # Optional keys.
@@ -287,7 +302,7 @@ class BuildkiteConfig:
     def __init__(self):
         self.bk_config = None
 
-    def build(self, input):
+    def build(self, input, platform_allowlist):
         """Build the final Buildkite configuration fron the json input."""
 
         self.bk_config = {"steps": []}
@@ -309,6 +324,11 @@ class BuildkiteConfig:
                 platforms = [None]
 
             for platform in platforms:
+                # Filter test enabled in platform_allowlist
+                if platform not in platform_allowlist:
+                    # Skip disabled platform
+                    continue
+
                 step_input = copy.deepcopy(test)
                 step_input["platform"] = platform
                 if not step_input.get("hypervisor"):
@@ -322,7 +342,18 @@ class BuildkiteConfig:
         return self.bk_config
 
 
-def generate_pipeline(config_file):
+def determine_allowlist(config_file):
+    """Determine the what platforms should be enabled for this crate"""
+
+    try:
+        with open(config_file, 'r') as file:
+            platforms = [line.strip() for line in file.readlines()]
+        return platforms
+    except Exception as e:
+        # Fall back to default platform if anything goes wrong
+        return ["x86_64", "aarch64"]
+
+def generate_pipeline(config_file, platform_allowlist):
     """Generate the pipeline yaml file from a json configuration file."""
 
     with open(config_file) as json_file:
@@ -330,7 +361,7 @@ def generate_pipeline(config_file):
         json_file.close()
 
     config = BuildkiteConfig()
-    output = config.build(json_cfg)
+    output = config.build(json_cfg, platform_allowlist)
     yaml.dump(output, sys.stdout, sort_keys=False)
 
 
@@ -361,7 +392,20 @@ if __name__ == "__main__":
         "--test-description",
         metavar="JSON_FILE",
         help="The path to the JSON file containing the test" " description for the CI.",
-        default=f"{PARENT_DIR}/test_description.json",
+        default=f"{BUILDKITE_PATH}/test_description.json",
+    )
+    parser.add_argument(
+        "-p",
+        "--platform-allowlist",
+        metavar="PLATFORM_DOT_FILE",
+        help=(
+            "The path to the dotfile containing platforms the crate's CI should run on.\n"
+            "If the file does not exist, falls back to default `platform_allowlist` (x86_64 and arm64).\n"
+            "The dotfile contains strings of architectures to be enabled separated by\n"
+            "newlines."
+        ),
+        default=f"{os.getcwd()}/.platform",
     )
     args = parser.parse_args()
-    generate_pipeline(args.test_description)
+    platform_allowlist = determine_allowlist(args.platform_allowlist)
+    generate_pipeline(args.test_description, platform_allowlist)
