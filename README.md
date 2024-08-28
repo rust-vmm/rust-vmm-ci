@@ -116,7 +116,24 @@ For most use cases, overriding or extending the configuration is not necessary. 
 want to do so if, for example, the platform needs a custom device that is not available
 on the existing test instances or if we need a specialized hypervisor.
 
-6. The code owners of the repository will have to setup a WebHook for
+6. Tests will be running on `x86_64` and `aarch64` platforms by default. To change
+this, e.g. to enable other experimental platforms like `riscv64`, a `.platform`
+file can be included in the repository root. This file documents what platforms
+are to be enabled for the repository.
+
+If `.platform` file is provided, it will be strictly observed. In `.platform`
+file, each platform are separated by newline character. Currently, we support
+`x86_64`, `aarch64` and `riscv64` platforms.
+
+For example, we can enable tests to be run on `riscv64` platform in addition to
+`x86_64` and `aarch64` by:
+```
+x86_64
+aarch64
+riscv64
+```
+
+7. The code owners of the repository will have to setup a WebHook for
 triggering the CI on
 [pull request](https://developer.github.com/v3/activity/events/types/#pullrequestevent)
 and [push](https://developer.github.com/v3/activity/events/types/#pushevent)
