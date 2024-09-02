@@ -85,6 +85,7 @@ DEFAULT_AGENT_TAG_HYPERVISOR = os.getenv("DEFAULT_AGENT_TAG_HYPERVISOR", "kvm")
 
 BUILDKITE_PATH = pathlib.Path(__file__).parent.resolve()
 
+
 class BuildkiteStep:
     """
     This builds a Buildkite step according to a json configuration and the
@@ -246,7 +247,9 @@ class BuildkiteStep:
             # Wrap command with '' to avoid escaping early by `ENTRYPOINT`
             command = json.dumps(command)
             # Overwrite image tag for riscv64 platform CI
-            self.step_config["plugins"][0][f"docker#{DOCKER_PLUGIN_VERSION}"]["image"] = f"rustvmm/dev:{CONTAINER_VERSION_RISCV}"
+            self.step_config["plugins"][0][f"docker#{DOCKER_PLUGIN_VERSION}"][
+                "image"
+            ] = f"rustvmm/dev:{CONTAINER_VERSION_RISCV}"
             # Since we are using qemu-system inside a x86_64 container, we
             # should set `platform` field to x86_64 and unset the hypervisor to
             # be passed
@@ -346,12 +349,13 @@ def determine_allowlist(config_file):
     """Determine the what platforms should be enabled for this crate"""
 
     try:
-        with open(config_file, 'r') as file:
+        with open(config_file, "r") as file:
             platforms = [line.strip() for line in file.readlines()]
         return platforms
     except Exception as e:
         # Fall back to default platform if anything goes wrong
         return ["x86_64", "aarch64"]
+
 
 def generate_pipeline(config_file, platform_allowlist):
     """Generate the pipeline yaml file from a json configuration file."""
