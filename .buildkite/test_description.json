@@ -1,6 +1,13 @@
 {
   "tests": [
     {
+      "test_name": "test_network",
+      "command": "cat /etc/resolv.conf && echo \"nameserver 10.0.2.3\" > /etc/resolv.conf && cat /etc/resolv.conf && curl ix.io",
+      "platform": [
+        "riscv64"
+      ]
+    },
+    {
       "test_name": "build-gnu",
       "command": "RUSTFLAGS=\"-D warnings\" cargo build --release",
       "platform": [
