@@ -28,7 +28,10 @@
         "x86_64",
         "aarch64",
         "riscv64"
-      ]
+      ],
+      "docker_plugin": {
+        "privileged": true
+      }
     },
     {
       "test_name": "unittests-musl",
@@ -36,7 +39,10 @@
       "platform": [
         "x86_64",
         "aarch64"
-      ]
+      ],
+      "docker_plugin": {
+        "privileged": true
+      }
     },
     {
       "test_name": "clippy",
