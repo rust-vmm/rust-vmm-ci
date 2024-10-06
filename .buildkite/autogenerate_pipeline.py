@@ -328,7 +328,7 @@ class BuildkiteConfig:
 
             for platform in platforms:
                 # Filter test enabled in platform_allowlist
-                if platform not in platform_allowlist:
+                if platform is not None and platform not in platform_allowlist:
                     # Skip disabled platform
                     continue
 
