@@ -101,14 +101,21 @@ def _run_critcmp():
     print(p.stderr.decode("utf-8"))
 
 
+def _clean_workdir():
+    subprocess.run("git restore .", shell=True, check=True)
+    subprocess.run("git clean -fd", shell=True, check=True)
+
+
 def _git_checkout_upstream_branch():
     subprocess.run(
         "git fetch {} {}".format(REMOTE, BASE_BRANCH), shell=True, check=True
     )
+    _clean_workdir()
     subprocess.run("git checkout FETCH_HEAD", shell=True, check=True)
 
 
 def _git_checkout_pr_branch():
+    _clean_workdir()
     subprocess.run(
         "git checkout -",
         shell=True,
