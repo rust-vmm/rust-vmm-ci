@@ -77,7 +77,7 @@ def _get_current_coverage(coverage_config, no_cleanup, test_scope):
     shutil.rmtree(cov_build_dir, ignore_errors=True)
 
     llvm_cov_command = (
-        f"CARGO_TARGET_DIR={cov_build_dir} cargo llvm-cov test --summary-only"
+        f"CARGO_TARGET_DIR={cov_build_dir} cargo llvm-cov test --json --summary-only"
     )
 
     additional_exclude_path = coverage_config["exclude_path"]
@@ -97,13 +97,8 @@ def _get_current_coverage(coverage_config, no_cleanup, test_scope):
         llvm_cov_command, shell=True, check=True, input=b"", stdout=subprocess.PIPE
     )
 
-    summary = result.stdout.split(b"\n")[-2]
-    # Output of llvm-cov is like
-    #   TOTAL 743 153 79.41% 185 50 72.97% 1531 125 91.84% 0 0 -
-    # where the first three numbers are related to region coverage, and next three to line coverage (what we want)
-    # and the last three to branch coverage (which is not yet supported). Below grabs the line coverage, and strips
-    # off the '%'.
-    coverage = float(summary.split()[6][:-1])
+    summary = json.loads(result.stdout)
+    coverage = summary["data"][0]["totals"]["lines"]["percent"]
 
     shutil.rmtree(cov_build_dir, ignore_errors=True)
 
