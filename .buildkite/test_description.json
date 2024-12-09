@@ -45,6 +45,29 @@
       }
     },
     {
+      "test_name": "unittests-gnu-release",
+      "command": "cargo test --release --all-features --workspace",
+      "platform": [
+        "x86_64",
+        "aarch64",
+        "riscv64"
+      ],
+      "docker_plugin": {
+        "privileged": true
+      }
+    },
+    {
+      "test_name": "unittests-musl-release",
+      "command": "cargo test --release --all-features --workspace --target {target_platform}-unknown-linux-musl",
+      "platform": [
+        "x86_64",
+        "aarch64"
+      ],
+      "docker_plugin": {
+        "privileged": true
+      }
+    },
+    {
       "test_name": "clippy",
       "command": "cargo clippy --workspace --bins --examples --benches --all-features --all-targets -- -D warnings -D clippy::undocumented_unsafe_blocks",
       "platform": [
