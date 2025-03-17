@@ -49,11 +49,11 @@ def _read_test_config():
 
     assert "coverage_score" in coverage_config
     assert "exclude_path" in coverage_config
-    assert "crate_features" in coverage_config
 
-    assert (
-        " " not in coverage_config["crate_features"]
-    ), "spaces are not allowed in crate_features value"
+    if "crate_features" in coverage_config:
+        assert (
+            " " not in coverage_config["crate_features"]
+        ), "spaces are not allowed in crate_features value"
 
     return coverage_config
 
@@ -87,9 +87,11 @@ def _get_current_coverage(coverage_config, no_cleanup, test_scope):
     if test_scope == pytest.workspace:
         llvm_cov_command += " --workspace "
 
-    crate_features = coverage_config["crate_features"]
+    crate_features = coverage_config.get("crate_features")
     if crate_features:
         llvm_cov_command += " --features=" + crate_features
+    if crate_features is None:
+        llvm_cov_command += " --all-features"
 
     # Pytest closes stdin by default, but some tests might need it to be open.
     # In the future, should the need arise, we can feed custom data to stdin.
