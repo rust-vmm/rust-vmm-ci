@@ -60,7 +60,7 @@ from textwrap import dedent
 
 # This represents the version of the rust-vmm-container used
 # for running the tests.
-CONTAINER_VERSION = "g492a130"
+CONTAINER_VERSION = "g825a7ab"
 # The suffix suggests that the dev image with `v{N}-riscv` tag is not to be
 # confused with real `riscv64` image (it's actually a `x86_64` image with
 # `qemu-system-riscv64` installed), since AWS yet has `riscv64` machines
