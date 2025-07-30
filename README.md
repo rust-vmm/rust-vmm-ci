@@ -163,7 +163,7 @@ steps:
     platform: x86_64.metal
   plugins:
   - docker#v3.8.0:
-      image: rustvmm/dev:v16
+      image: rustvmm/dev:latest
       always-pull: true
   timeout_in_minutes: 5
 ```
@@ -243,16 +243,16 @@ The line coverage is saved in [tests/coverage](tests/coverage). To update the
 coverage before submitting a PR, run the coverage test:
 
 ```bash
-CRATE="kvm-ioctls"
-# NOTE: This might not be the latest container version, you can check which one we're using
-# by looking into the .buildkite/autogenerate_pipeline.py file.
-LATEST=16
+cd path/to/kvm-ioctls
+# NOTE: `latest` should point to the latest version, but you can specify an exact
+# one as we do with CONTAINER_VERSION in .buildkite/autogenerate_pipeline.py file.
+TAG="latest"
+docker pull rustvmm/dev:${TAG}
 docker run --device=/dev/kvm \
            -it \
            --security-opt seccomp=unconfined \
-           --volume $(pwd)/${CRATE}:/${CRATE} \
-           rustvmm/dev:v${LATEST}
-cd ${crate}
+           --volume $(pwd):/crate --workdir /crate \
+           rustvmm/dev:${TAG}
 pytest --profile=devel rust-vmm-ci/integration_tests/test_coverage.py
 ```
 
@@ -292,7 +292,7 @@ steps:
     platform: arm.metal
   plugins:
   - docker#v3.8.0:
-      image: rustvmm/dev:v16
+      image: rustvmm/dev:latest
       always-pull: true
 ```
 
@@ -330,12 +330,16 @@ pipeline output. In its present form, the test cannot fail.
 To run the test locally:
 
 ```bash
+cd path/to/vm-superio
+# NOTE: `latest` should point to the latest version, but you can specify an exact
+# one as we do with CONTAINER_VERSION in .buildkite/autogenerate_pipeline.py file.
+TAG="latest"
+docker pull rustvmm/dev:${TAG}
 docker run --device=/dev/kvm \
            -it \
            --security-opt seccomp=unconfined \
-           --volume $(pwd)/${CRATE}:/${CRATE} \
-           rustvmm/dev:v${LATEST}
-cd ${CRATE}
+           --volume $(pwd):/crate --workdir /crate \
+           rustvmm/dev:${TAG}
 pytest rust-vmm-ci/integration_tests/test_benchmark.py -s
 ```
 
@@ -349,17 +353,15 @@ You can find the latest container version in the
 [script](.buildkite/autogenerate_pipeline.py)
 that autogenerates the pipeline. For example:
 ```bash
-cd ~/vm-superio
-CRATE="vm-superio"
-# NOTE: This might not be the latest container version, you can check which one we're using
-# by looking into the .buildkite/autogenerate_pipeline.py file.
-LATEST=16
+cd path/to/vm-superio
+# NOTE: `latest` should point to the latest version, but you can specify an exact
+# one as we do with CONTAINER_VERSION in .buildkite/autogenerate_pipeline.py file.
+TAG="latest"
+docker pull rustvmm/dev:${TAG}
 docker run -it \
            --security-opt seccomp=unconfined \
-           --volume $(pwd):/${CRATE} \
-           --volume ~/.ssh:/root/.ssh \
-           rustvmm/dev:v${LATEST}
-cd vm-superio
+           --volume $(pwd):/crate --workdir /crate \
+           rustvmm/dev:${TAG}
 ./rust-vmm-ci/test_run.py
 ```
 
