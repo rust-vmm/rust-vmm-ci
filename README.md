@@ -243,7 +243,7 @@ The line coverage is saved in [tests/coverage](tests/coverage). To update the
 coverage before submitting a PR, run the coverage test:
 
 ```bash
-CRATE="kvm-ioctls"
+cd path/to/kvm-ioctls
 # NOTE: `latest` should point to the latest version, but you can specify an exact
 # one as we do with CONTAINER_VERSION in .buildkite/autogenerate_pipeline.py file.
 TAG="latest"
@@ -251,9 +251,8 @@ docker pull rustvmm/dev:${TAG}
 docker run --device=/dev/kvm \
            -it \
            --security-opt seccomp=unconfined \
-           --volume $(pwd)/${CRATE}:/${CRATE} \
+           --volume $(pwd):/crate --workdir /crate \
            rustvmm/dev:${TAG}
-cd ${crate}
 pytest --profile=devel rust-vmm-ci/integration_tests/test_coverage.py
 ```
 
@@ -331,6 +330,7 @@ pipeline output. In its present form, the test cannot fail.
 To run the test locally:
 
 ```bash
+cd path/to/vm-superio
 # NOTE: `latest` should point to the latest version, but you can specify an exact
 # one as we do with CONTAINER_VERSION in .buildkite/autogenerate_pipeline.py file.
 TAG="latest"
@@ -338,9 +338,8 @@ docker pull rustvmm/dev:${TAG}
 docker run --device=/dev/kvm \
            -it \
            --security-opt seccomp=unconfined \
-           --volume $(pwd)/${CRATE}:/${CRATE} \
+           --volume $(pwd):/crate --workdir /crate \
            rustvmm/dev:${TAG}
-cd ${CRATE}
 pytest rust-vmm-ci/integration_tests/test_benchmark.py -s
 ```
 
@@ -354,18 +353,15 @@ You can find the latest container version in the
 [script](.buildkite/autogenerate_pipeline.py)
 that autogenerates the pipeline. For example:
 ```bash
-cd ~/vm-superio
-CRATE="vm-superio"
+cd path/to/vm-superio
 # NOTE: `latest` should point to the latest version, but you can specify an exact
 # one as we do with CONTAINER_VERSION in .buildkite/autogenerate_pipeline.py file.
 TAG="latest"
 docker pull rustvmm/dev:${TAG}
 docker run -it \
            --security-opt seccomp=unconfined \
-           --volume $(pwd):/${CRATE} \
-           --volume ~/.ssh:/root/.ssh \
+           --volume $(pwd):/crate --workdir /crate \
            rustvmm/dev:${TAG}
-cd vm-superio
 ./rust-vmm-ci/test_run.py
 ```
 
