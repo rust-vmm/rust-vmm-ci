@@ -1,13 +1,16 @@
 version: 2
 updates:
 
+# We do not set open-pull-requests-limit, as sometimes
+# dependabot thinks the limit is hit without actually having
+# any PRs open. In reality, the configs below can only result
+# in at most one PR per package ecosyste manyway.
 # A weekly update of the rust-vmm-ci submodule
 - package-ecosystem: gitsubmodule
   directory: "/"
   schedule:
     interval: weekly
     day: monday
-  open-pull-requests-limit: 1
 
 # A weekly update to rust dependencies. These will be grouped,
 # e.g. one PR will contains updates for all dependencies.
@@ -16,7 +19,6 @@ updates:
   schedule:
     interval: weekly
     day: monday
-  open-pull-requests-limit: 1
   # Make it also update transitive dependencies in Cargo.lock
   allow:
     - dependency-type: "all"
