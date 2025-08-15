@@ -99,3 +99,46 @@ if [ -f "$DEPENDABOT_FILE" ]; then
 else
 	setup_dependabot_config
 fi
+
+echo
+echo "Setting up auto-publish for crates.io upon creation of GitHub tags..."
+
+if [ ! -f Cargo.toml ]; then
+	echo "Cargo.toml not found. Please re-run this script after setting up the crates to configure auto-publishing!"
+else
+	mkdir -p .github/workflows
+	if grep -q '\[workspace\]' Cargo.toml; then
+		members="$(cargo metadata --format-version 1 | jq '.workspace_members[]')"
+		for member_path in $members; do
+			member_path="${member_path#*//}"
+			member_path="${member_path%#*}"
+
+			crate_name=$(basename $member_path)
+			# get path relative to crate root
+			member_path=$(realpath -m --relative-to . $member_path)
+
+			workflow_file=.github/workflows/publish-$crate_name.yml
+			# Use printf when writing this value, so that whitespaces/newlines are respected
+			workflow=$(sed "s/'v\*'/'$crate_name-v*'/" $RUST_VMM_CI/publish.yml | sed "s/cd ./cd $member_path/")
+
+			if [ -f $workflow_file ] && cmp --silent $workflow_file <(printf "$workflow"); then
+				echo "Publish workflow for $crate_name already setup, skipping"
+				continue
+			fi
+
+			if confirm "Found workspace member '$crate_name' at '$member_path'. Setup auto-publish?"; then
+				if [ -f $workflow_file ] && ! confirm "$workflow_file already exists. Overwrite?"; then
+					continue
+				fi
+
+				printf "$workflow" > $workflow_file
+				echo "If not already done, go to https://crates.io/crates/$crate_name/settings and add $(basename $workflow_file) as a trusted publisher!"
+			fi
+		done
+	else
+		question="Single crate repository detected, setup running 'cargo publish' at repository root when tags matching 'v*' are published? (if a .github/workflows/publish.yml file already exists, it will be overwritten)"
+		if confirm "$question"; then
+			cp $RUST_VMM_CI/publish.yml .github/workflows/publish.yml
+		fi
+	fi
+fi
