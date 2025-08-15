@@ -25,7 +25,16 @@ git submodule add https://github.com/rust-vmm/rust-vmm-ci.git
 git commit -s -m "Added rust-vmm-ci as submodule"
 ```
 
-2. Create the coverage test configuration file named
+2. Run the initial setup script for configuring dependabot for automated cargo
+   and submodule updates, as well as configuring which hardware platforms CI
+   should be run for:
+
+```bash
+# Script has to be run relative to the repository root!
+./rust-vmm-ci/setup_repository.sh
+```
+
+3. Create the coverage test configuration file named
 `coverage_config_ARCH.json` in the root of the repository, where `ARCH` is the
 architecture of the machine.
 There are two coverage test configuration files, one per each platform.
@@ -54,14 +63,6 @@ Additionally, the following optional fields are available:
 
 This file is required for the coverage integration so it needs to be added
 to the repository as well.
-
-3. Copy one of the two provided dependabot configurations to `.github/dependabot.yml`,
-   e.g. run `cp rust-vmm-ci/dependabot-{weekly,monthly}.yml .github/dependabot.yml`.
-   Note that just symlinking the file does not work, as dependabot will not
-   follow symlinks into submodules. This means that updates to these files made in
-   rust-vmm-ci will need to be manually consumed for now. We recommend setting up
-   weekly dependabot updates only if the crate receives multiple contributions a week,
-   and if you expect to have the bandwidth to address weekly dependency PRs.
 
 4. Create a new pipeline definition in Buildkite. For this step ask one of the
 rust-vmm Buildkite [admins](CODEOWNERS) to create one for you. The process is explained
@@ -119,24 +120,7 @@ For most use cases, overriding or extending the configuration is not necessary. 
 want to do so if, for example, the platform needs a custom device that is not available
 on the existing test instances or if we need a specialized hypervisor.
 
-6. Tests will be running on `x86_64` and `aarch64` platforms by default. To change
-this, e.g. to enable other experimental platforms like `riscv64`, a `.platform`
-file can be included in the repository root. This file documents what platforms
-are to be enabled for the repository.
-
-If `.platform` file is provided, it will be strictly observed. In `.platform`
-file, each platform are separated by newline character. Currently, we support
-`x86_64`, `aarch64` and `riscv64` platforms.
-
-For example, we can enable tests to be run on `riscv64` platform in addition to
-`x86_64` and `aarch64` by:
-```
-x86_64
-aarch64
-riscv64
-```
-
-7. The code owners of the repository will have to setup a WebHook for
+6. The code owners of the repository will have to setup a WebHook for
 triggering the CI on
 [pull request](https://developer.github.com/v3/activity/events/types/#pullrequestevent)
 and [push](https://developer.github.com/v3/activity/events/types/#pushevent)
@@ -148,7 +132,9 @@ The [Buildkite](https://buildkite.com) pipeline is the definition of tests to
 be run as part of the CI. It includes steps for running unit tests and linters
 (including coding style checks), and computing the coverage.
 
-Currently the tests can run on Linux `x86_64` and `aarch64` hosts.
+Currently the tests can run on Linux `x86_64`, `aarch64` and `riscv64`
+(virtualized inside QEMU) hosts. Which hosts tests should be ran for is
+determined by the `.platform` file in the repository root.
 
 Example of step that checks the build:
 
