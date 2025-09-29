@@ -2,7 +2,7 @@
   "tests": [
     {
       "test_name": "build-gnu",
-      "command": "RUSTFLAGS=\"-D warnings\" cargo build --release --workspace --all-targets",
+      "command": "RUSTFLAGS=\"-D warnings\" cargo all-features build --release --workspace --all-targets",
       "platform": [
         "x86_64",
         "aarch64",
@@ -11,7 +11,7 @@
     },
     {
       "test_name": "build-musl",
-      "command": "RUSTFLAGS=\"-D warnings\" cargo build --release --target {target_platform}-unknown-linux-musl --workspace --all-targets",
+      "command": "RUSTFLAGS=\"-D warnings\" cargo all-features build --release --target {target_platform}-unknown-linux-musl --workspace --all-targets",
       "platform": [
         "x86_64",
         "aarch64"
@@ -35,7 +35,7 @@
     },
     {
       "test_name": "unittests-musl",
-      "command": "cargo test --all-features --workspace --target {target_platform}-unknown-linux-musl",
+      "command": "cargo all-features test --workspace --target {target_platform}-unknown-linux-musl",
       "platform": [
         "x86_64",
         "aarch64"
@@ -46,7 +46,7 @@
     },
     {
       "test_name": "unittests-gnu-release",
-      "command": "cargo test --release --all-features --workspace",
+      "command": "cargo all-features test --release --workspace",
       "platform": [
         "x86_64",
         "aarch64",
@@ -58,7 +58,7 @@
     },
     {
       "test_name": "unittests-musl-release",
-      "command": "cargo test --release --all-features --workspace --target {target_platform}-unknown-linux-musl",
+      "command": "cargo all-features test --release --workspace --target {target_platform}-unknown-linux-musl",
       "platform": [
         "x86_64",
         "aarch64"
