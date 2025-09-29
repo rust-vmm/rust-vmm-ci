@@ -2,7 +2,7 @@
   "tests": [
     {
       "test_name": "build-gnu",
-      "command": "RUSTFLAGS=\"-D warnings\" cargo build --release --workspace",
+      "command": "RUSTFLAGS=\"-D warnings\" cargo build --release --workspace --all-targets",
       "platform": [
         "x86_64",
         "aarch64",
@@ -11,7 +11,7 @@
     },
     {
       "test_name": "build-musl",
-      "command": "RUSTFLAGS=\"-D warnings\" cargo build --release --target {target_platform}-unknown-linux-musl --workspace",
+      "command": "RUSTFLAGS=\"-D warnings\" cargo build --release --target {target_platform}-unknown-linux-musl --workspace --all-targets",
       "platform": [
         "x86_64",
         "aarch64"
