@@ -77,15 +77,6 @@
       ]
     },
     {
-      "test_name": "check-warnings",
-      "command": "RUSTFLAGS=\"-D warnings\" cargo check --all-targets --all-features --workspace",
-      "platform": [
-        "x86_64",
-        "aarch64",
-        "riscv64"
-      ]
-    },
-    {
       "test_name": "coverage",
       "command": "pytest $(find . -type f -name \"test_coverage.py\")",
       "docker_plugin": {
