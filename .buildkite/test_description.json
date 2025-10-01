@@ -5,7 +5,13 @@
       "command": "RUSTFLAGS=\"-D warnings\" cargo all-features build --release --workspace --all-targets",
       "platform": [
         "x86_64",
-        "aarch64",
+        "aarch64"
+      ]
+    },
+    {
+      "test_name": "build-gnu",
+      "command": "RUSTFLAGS=\"-D warnings\" cargo build --all-features --release --workspace --all-targets",
+      "platform": [
         "riscv64"
       ]
     },
@@ -30,7 +36,16 @@
       "command": "cargo all-features test --workspace",
       "platform": [
         "x86_64",
-        "aarch64",
+        "aarch64"
+      ],
+      "docker_plugin": {
+        "privileged": true
+      }
+    },
+    {
+      "test_name": "unittests-gnu",
+      "command": "cargo test --all-features --workspace",
+      "platform": [
         "riscv64"
       ],
       "docker_plugin": {
@@ -53,7 +68,16 @@
       "command": "cargo all-features test --release --workspace",
       "platform": [
         "x86_64",
-        "aarch64",
+        "aarch64"
+      ],
+      "docker_plugin": {
+        "privileged": true
+      }
+    },
+    {
+      "test_name": "unittests-gnu-release",
+      "command": "cargo test --all-features --release --workspace",
+      "platform": [
         "riscv64"
       ],
       "docker_plugin": {
@@ -76,7 +100,13 @@
       "command": "cargo all-features clippy --workspace --all-targets -- -D warnings -D clippy::undocumented_unsafe_blocks",
       "platform": [
         "x86_64",
-        "aarch64",
+        "aarch64"
+      ]
+    },
+    {
+      "test_name": "clippy",
+      "command": "cargo clippy --all-features --workspace --all-targets -- -D warnings -D clippy::undocumented_unsafe_blocks",
+      "platform": [
         "riscv64"
       ]
     },
