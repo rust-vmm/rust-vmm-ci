@@ -29,7 +29,7 @@
     },
     {
       "test_name": "doc",
-      "command": "RUSTDOCFLAGS=\"-D warnings\" RUSTFLAGS=\"--cfg RUTSDOC_disable_feature_compat_errors\" cargo doc --workspace --all-features --no-deps"
+      "command": "RUSTDOCFLAGS=\"-D warnings\" RUSTFLAGS=\"--cfg RUSTDOC_disable_feature_compat_errors\" cargo doc --workspace --all-features --no-deps"
     },
     {
       "test_name": "unittests-gnu",
