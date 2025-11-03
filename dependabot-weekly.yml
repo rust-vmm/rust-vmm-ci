@@ -4,7 +4,7 @@ updates:
 # We do not set open-pull-requests-limit, as sometimes
 # dependabot thinks the limit is hit without actually having
 # any PRs open. In reality, the configs below can only result
-# in at most one PR per package ecosyste manyway.
+# in at most one PR per package ecosystem anyway.
 # A weekly update of the rust-vmm-ci submodule
 - package-ecosystem: gitsubmodule
   directory: "/"
