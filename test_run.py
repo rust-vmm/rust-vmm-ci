@@ -33,16 +33,14 @@ def retrieve_test_list(config_file=f"{PARENT_DIR}/.buildkite/test_description.js
 
 
 if __name__ == "__main__":
-    help_text = dedent(
-        """
+    help_text = dedent("""
         This script allows running all the tests at once on the local machine.
         The tests "test_benchmark.py" and "test_commit_format.py" work properly
         on the local machine only when the environment variables REMOTE and
         BASE_BRANCH are set. Otherwise the default values are "origin" for the
         remote name of the upstream repository and "main" for the name of the
         base branch, and these tests may not work as expected.
-        """
-    )
+        """)
     parser = ArgumentParser(description=help_text, formatter_class=RawTextHelpFormatter)
     parser.parse_args()
 

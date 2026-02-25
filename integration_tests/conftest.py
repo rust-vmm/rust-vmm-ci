@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: Apache-2.0
 import pytest
 
-
 PROFILE_CI = "ci"
 PROFILE_DEVEL = "devel"
 
