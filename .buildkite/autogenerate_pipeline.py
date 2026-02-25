@@ -370,8 +370,7 @@ def generate_pipeline(config_file, platform_allowlist):
 
 
 if __name__ == "__main__":
-    help_text = dedent(
-        """
+    help_text = dedent("""
         This script supports overriding the following configurations through
         environment variables:
         - X86_LINUX_AGENT_TAGS: overrides the tags by which the x86_64 linux
@@ -383,8 +382,7 @@ if __name__ == "__main__":
         https://github.com/buildkite-plugins/docker-buildkite-plugin.
         - TESTS_TO_SKIP: specifies a list of tests to be skipped.
         - TIMEOUTS_MIN: overrides the timeout value for specific tests.
-        """
-    )
+        """)
     parser = ArgumentParser(description=help_text, formatter_class=RawTextHelpFormatter)
     # By default we're generating the rust-vmm-ci pipeline with the test
     # configuration committed to this repository.
