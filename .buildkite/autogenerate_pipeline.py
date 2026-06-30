@@ -46,6 +46,12 @@ DOCKER_PLUGIN_CONFIG='{
 }'
 TIMEOUTS_MIN='["style": 30]'
 ```
+
+When invoked with `--workspace-selective`, the script emits one step per
+workspace crate tagged with Buildkite's native `if_changed` property, so each
+crate's shared crate-scoped tests only run when files in that crate (or in a
+workspace-global path) change. Tests tagged with `"scope": "workspace"`
+(e.g. `commit-format`) have no `if_changed` and always run.
 """
 
 import yaml
@@ -54,6 +60,8 @@ import os
 import sys
 import pathlib
 import copy
+import glob
+import tomllib
 
 from argparse import ArgumentParser, RawTextHelpFormatter
 from textwrap import dedent
@@ -84,6 +92,13 @@ TIMEOUTS_MIN = os.getenv("TIMEOUTS_MIN")
 DEFAULT_AGENT_TAG_HYPERVISOR = os.getenv("DEFAULT_AGENT_TAG_HYPERVISOR", "kvm")
 
 BUILDKITE_PATH = pathlib.Path(__file__).parent.resolve()
+
+# Per-crate file listing the platforms CI should run on.
+PLATFORMS_FILE = ".platform"
+
+# Paths added to every shared crate-scoped step's `if_changed`, so a change to
+# the workspace as a whole fires each crate's shared tests.
+WORKSPACE_GLOBAL_PATHS = ("Cargo.toml", ".buildkite/**", "rust-vmm-ci/**")
 
 
 class BuildkiteStep:
@@ -232,16 +247,26 @@ class BuildkiteStep:
         conditional = input.get("conditional")
         timeout = input.get("timeout_in_minutes")
         queue = input.get("queue")
+        crate = input.get("crate")
+        crate_path = input.get("crate_path")
 
         # Mandatory keys.
         assert test_name, "Step is missing test name."
         platform_string = f"-{platform}" if platform else ""
-        self.step_config["label"] = f"{test_name}{platform_string}"
+        # When the step is crate-scoped, prefix the label with the crate to disambiguate.
+        crate_string = f"{crate}: " if crate else ""
+        self.step_config["label"] = f"{crate_string}{test_name}{platform_string}"
 
         assert command, "Step is missing command."
         if "{target_platform}" in command:
             assert platform, "Command requires platform, but platform is missing."
             command = command.replace("{target_platform}", platform)
+        if "{crate}" in command:
+            assert crate, "Command requires crate, but crate is missing."
+            command = command.replace("{crate}", crate)
+        if "{crate_path}" in command:
+            assert crate_path, "Command requires crate path, but crate path is missing."
+            command = command.replace("{crate_path}", crate_path)
         # Modify command and tag name for `riscv64` CI
         if platform == "riscv64":
             # Wrap command with '' to avoid escaping early by `ENTRYPOINT`
@@ -282,6 +307,9 @@ class BuildkiteStep:
             "test_name",
             "queue",
             "hypervisor",
+            "crate",
+            "crate_path",
+            "scope",
         ]
         additional_keys = {
             k: v
@@ -305,6 +333,38 @@ class BuildkiteConfig:
     def __init__(self):
         self.bk_config = None
 
+    @staticmethod
+    def _skip_test(test_name):
+        """Return whether `test_name` is excluded via the `TESTS_TO_SKIP` env."""
+        return bool(TESTS_TO_SKIP) and test_name in json.loads(TESTS_TO_SKIP)
+
+    def _append_test_steps(
+        self, test, platform_allowlist, crate=None, crate_path=None, if_changed=None
+    ):
+        """Append the steps for `test`, one per allowed platform, scoped to `crate`."""
+        platforms = test.get("platform")
+        # The platform is optional.
+        if not platforms:
+            platforms = [None]
+
+        for platform in platforms:
+            # Filter test enabled in platform_allowlist
+            if platform is not None and platform not in platform_allowlist:
+                # Skip disabled platform
+                continue
+
+            step_input = copy.deepcopy(test)
+            step_input["platform"] = platform
+            step_input["crate"] = crate
+            step_input["crate_path"] = crate_path
+            if if_changed is not None:
+                step_input["if_changed"] = if_changed
+            if not step_input.get("hypervisor"):
+                step_input["hypervisor"] = DEFAULT_AGENT_TAG_HYPERVISOR
+
+            step = BuildkiteStep()
+            self.bk_config["steps"].append(step.build(step_input))
+
     def build(self, input, platform_allowlist):
         """Build the final Buildkite configuration fron the json input."""
 
@@ -313,33 +373,58 @@ class BuildkiteConfig:
         assert tests, "Input is missing list of tests."
 
         for test in tests:
-            platforms = test.get("platform")
-            test_name = test.get("test_name")
+            if self._skip_test(test.get("test_name")):
+                continue
+            self._append_test_steps(test, platform_allowlist)
 
-            if TESTS_TO_SKIP:
-                tests_to_skip = json.loads(TESTS_TO_SKIP)
-                if test_name in tests_to_skip:
+        # Return the object's attributes and their values as a dictionary.
+        return self.bk_config
+
+    def _append_crate_steps(self, test, crate, crate_path, if_changed=None):
+        """Append `test` scoped to `crate`, using the crate's own `.platform`."""
+        allowlist = determine_allowlist(os.path.join(crate_path, PLATFORMS_FILE))
+        self._append_test_steps(
+            test,
+            allowlist,
+            crate=crate,
+            crate_path=crate_path,
+            if_changed=if_changed,
+        )
+
+    def build_workspace_selective(self, input, dirs, root_allowlist):
+        """Build the workspace-selective configuration with `if_changed` per step."""
+
+        self.bk_config = {"steps": []}
+        tests = input.get("tests")
+        assert tests, "Input is missing list of tests."
+
+        # Shared tests: workspace-scoped ones always run; crate-scoped ones run
+        # per crate and fire on changes to that crate or a workspace-global path.
+        for test in tests:
+            if self._skip_test(test.get("test_name")):
+                continue
+            if test.get("scope", "crate") == "workspace":
+                self._append_test_steps(test, root_allowlist)
+                continue
+            for crate in sorted(dirs):
+                crate_path = dirs[crate]
+                self._append_crate_steps(
+                    test,
+                    crate,
+                    crate_path,
+                    if_changed=[f"{crate_path}/**", *WORKSPACE_GLOBAL_PATHS],
+                )
+
+        # Per-crate extras fire only on changes inside that crate (decoupled
+        # from workspace-global paths so a root change does not retrigger them).
+        for crate in sorted(dirs):
+            crate_path = dirs[crate]
+            for test in crate_test_description(crate_path):
+                if self._skip_test(test.get("test_name")):
                     continue
-
-            # The platform is optional. When it is not specified, we don't add
-            # it to the step so that we can run the test in any environment.
-            if not platforms:
-                platforms = [None]
-
-            for platform in platforms:
-                # Filter test enabled in platform_allowlist
-                if platform is not None and platform not in platform_allowlist:
-                    # Skip disabled platform
-                    continue
-
-                step_input = copy.deepcopy(test)
-                step_input["platform"] = platform
-                if not step_input.get("hypervisor"):
-                    step_input["hypervisor"] = DEFAULT_AGENT_TAG_HYPERVISOR
-
-                step = BuildkiteStep()
-                step_output = step.build(step_input)
-                self.bk_config["steps"].append(step_output)
+                self._append_crate_steps(
+                    test, crate, crate_path, if_changed=[f"{crate_path}/**"]
+                )
 
         # Return the object's attributes and their values as a dictionary.
         return self.bk_config
@@ -357,6 +442,43 @@ def determine_allowlist(config_file):
         return ["x86_64", "aarch64"]
 
 
+def crate_test_description(crate_path):
+    """Return the crate's own extra tests from `<crate>/.buildkite/`, if any."""
+    path = os.path.join(crate_path, ".buildkite", "test_description.json")
+    if not os.path.exists(path):
+        return []
+    with open(path) as json_file:
+        return json.load(json_file).get("tests", [])
+
+
+def workspace_members():
+    """Return `{crate_name: relative_path}` for each workspace member.
+
+    Parses the workspace's Cargo.toml manifests with the stdlib `tomllib`
+    module so this script does not require `cargo` on the host.
+    """
+    with open("Cargo.toml", "rb") as f:
+        patterns = tomllib.load(f).get("workspace", {}).get("members", [])
+
+    members = {}
+    for pattern in patterns:
+        # Expand glob patterns like `crates/*`; bare paths pass through.
+        matches = (
+            sorted(glob.glob(pattern))
+            if any(c in pattern for c in "*?[")
+            else [pattern]
+        )
+        for member_dir in matches:
+            manifest = os.path.join(member_dir, "Cargo.toml")
+            if not os.path.isfile(manifest):
+                continue
+            with open(manifest, "rb") as f:
+                name = tomllib.load(f).get("package", {}).get("name")
+            if name:
+                members[name] = member_dir
+    return members
+
+
 def generate_pipeline(config_file, platform_allowlist):
     """Generate the pipeline yaml file from a json configuration file."""
 
@@ -366,6 +488,19 @@ def generate_pipeline(config_file, platform_allowlist):
 
     config = BuildkiteConfig()
     output = config.build(json_cfg, platform_allowlist)
+    yaml.dump(output, sys.stdout, sort_keys=False)
+
+
+def generate_workspace_selective_pipeline(config_file, root_allowlist):
+    """Generate a workspace-selective pipeline from a json configuration file."""
+
+    with open(config_file) as json_file:
+        json_cfg = json.load(json_file)
+
+    dirs = workspace_members()
+
+    config = BuildkiteConfig()
+    output = config.build_workspace_selective(json_cfg, dirs, root_allowlist)
     yaml.dump(output, sys.stdout, sort_keys=False)
 
 
@@ -408,6 +543,25 @@ if __name__ == "__main__":
         ),
         default=f"{os.getcwd()}/.platform",
     )
+    # `--workspace-selective` takes a value rather than being a flag (no
+    # `action="store_true"`) because the infrastructure that invokes this
+    # script supports parameters with arguments only, not bare options.
+    parser.add_argument(
+        "--workspace-selective",
+        default="False",
+        metavar="BOOL",
+        help=(
+            "When 'True', generate a selective pipeline for a Cargo workspace,\n"
+            "emitting one step per crate gated by Buildkite's `if_changed`\n"
+            "property so each crate's shared tests only run when files in that\n"
+            "crate (or a workspace-global path) change. The per-crate test\n"
+            "description (using the {crate}/{crate_path} placeholders and\n"
+            "`scope`) is supplied via -t. Default: 'False'."
+        ),
+    )
     args = parser.parse_args()
     platform_allowlist = determine_allowlist(args.platform_allowlist)
-    generate_pipeline(args.test_description, platform_allowlist)
+    if args.workspace_selective == "True":
+        generate_workspace_selective_pipeline(args.test_description, platform_allowlist)
+    else:
+        generate_pipeline(args.test_description, platform_allowlist)
