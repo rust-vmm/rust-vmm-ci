@@ -191,6 +191,62 @@ script that autogenerates the main pipeline can be used with the option
 ./rust-vmm-ci/.buildkite/autogenerate_pipeline.py -t .buildkite/custom-tests.json | buildkite-agent pipeline upload
 ```
 
+### Workspace-Selective Pipeline
+
+The `rust-vmm/rust-vmm` monorepo hosts several crates in a single Cargo
+workspace and can run CI selectively, so that a change to one crate does not
+retest the whole workspace. Passing `--workspace-selective True` enables this:
+
+```bash
+./rust-vmm-ci/.buildkite/autogenerate_pipeline.py --workspace-selective True -t .buildkite/test_description.json | buildkite-agent pipeline upload
+```
+
+The mode is designed so that:
+
+- each crate declares its own supported platforms via its `.platform` file;
+- each crate can define tests specific to it via its own
+  `.buildkite/test_description.json`;
+- a minimal set of tests still runs across all crates on every change, to catch
+  cross-crate breakage without overwhelming CI, via tests tagged
+  `"scope": "workspace"`.
+
+The generator emits one step per crate per shared test, tagged with Buildkite's
+native [`if_changed`](https://buildkite.com/docs/pipelines/configure/dynamic-pipelines/if-changed)
+property, so each step only runs when files in that crate (or in a workspace-
+global path: the root `Cargo.toml`, `.buildkite`, or the `rust-vmm-ci`
+submodule) change. Each crate uses its own `.platform` and
+`coverage_config_ARCH.json`, and the coverage test runs from the crate's
+directory with `--test-scope=crate`.
+
+`--workspace-selective` ships no default test description: the per-crate
+commands are the workspace's own configuration, like a
+[custom pipeline](#custom-pipeline), and are passed with `-t`. They use the
+`{crate}` and `{crate_path}` placeholders instead of `--workspace`, and tests
+that aren't per-crate (such as a workspace-wide `cargo check` that catches
+cross-crate breakage) are tagged `"scope": "workspace"` to run unconditionally:
+
+```json
+{
+  "tests": [
+    {
+      "test_name": "build-gnu",
+      "command": "cargo build -p {crate} --release --all-targets",
+      "platform": ["x86_64", "aarch64"]
+    },
+    {
+      "test_name": "cross-crate-check",
+      "scope": "workspace",
+      "command": "cargo check --workspace --all-targets",
+      "platform": ["x86_64"]
+    }
+  ]
+}
+```
+
+A crate may also carry its own `.buildkite/test_description.json`; its tests
+extend that crate's steps with checks specific to it, gated on the crate's path
+only (a change to a workspace-global path does not re-run them).
+
 ## Integration Tests
 
 In addition to the one-liner tests defined in the
