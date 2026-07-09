@@ -356,7 +356,13 @@ class BuildkiteConfig:
             step_input = copy.deepcopy(test)
             step_input["platform"] = platform
             step_input["crate"] = crate
-            step_input["crate_path"] = crate_path
+            # We always allow the test description to overwrite global configurations.
+            # To do so, we first check if the test definition has a `crate_path`, if yes, we use that. Otherwise, we
+            # use the passed parameter `crate_path`. This also applies to "if_changed".
+            crate_path = test.get("crate_path", crate_path)
+            if crate_path is not None:
+                step_input["crate_path"] = crate_path
+            if_changed = test.get("if_changed", if_changed)
             if if_changed is not None:
                 step_input["if_changed"] = if_changed
             if not step_input.get("hypervisor"):
