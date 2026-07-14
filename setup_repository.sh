@@ -14,7 +14,7 @@ EOF
 
 RUST_VMM_CI=$(dirname ${BASH_SOURCE[0]})
 
-SUPPORTED_PLATFORMS=("x86_64" "aarch64" "riscv64")
+SUPPORTED_PLATFORMS=("x86_64" "aarch64" "riscv64" "s390x")
 PLATFORMS_FILE=".platform"
 
 DEPENDABOT_SCHEDULES=("weekly" "monthly")
