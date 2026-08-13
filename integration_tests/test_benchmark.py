@@ -26,6 +26,7 @@ PR_BENCH_RESULTS_FILE = "pr_bench_results"
 # File used for saving the results of cargo bench
 # when running on the upstream branch.
 UPSTREAM_BENCH_RESULTS_FILE = "upstream_bench_results"
+PACKAGE = os.environ.get("PACKAGE")
 
 
 def test_bench():
@@ -66,15 +67,22 @@ def test_bench():
             # exist. Hopefully it will be possible to check it in another way
             # ...soon
             print("There are no benchmarks in main. No comparison can happen.")
+        elif (
+            "error: cannot specify features for packages outside of workspace" in stderr
+        ):
+            print("The package does not exist upstream. No comparison can happen.")
         else:
             assert return_code == 0, "stdout: {}\n stderr: {}".format(stdout, stderr)
 
 
 def _run_cargo_bench(baseline):
     """Runs `cargo bench` and tags the baseline."""
+
+    package = "--package {}".format(PACKAGE) if PACKAGE else ""
+
     process = subprocess.run(
-        "cargo bench --bench main --all-features -- --noplot "
-        "--save-baseline {}".format(baseline),
+        "cargo bench --bench main {} --all-features -- --noplot "
+        "--save-baseline {}".format(package, baseline),
         shell=True,
         stderr=subprocess.PIPE,
         stdout=subprocess.PIPE,
