@@ -338,6 +338,22 @@ steps:
       always-pull: true
 ```
 
+By default, the test runs benchmarks for the entire workspace. To restrict
+benchmarks to a single package, set the `PACKAGE` environment variable:
+
+```yaml
+steps:
+- label: bench-aarch64
+  command: pytest rust-vmm-ci/integration_tests/test_benchmark.py -s
+  environment:
+    - PACKAGE=my-crate
+  ...
+```
+
+This is useful in workspaces where only one crate exports criterion
+benchmarks. When `PACKAGE` is set and the package does not exist on the
+upstream branch, the comparison is skipped.
+
 The test requires [`criterion`](https://github.com/bheisler/criterion.rs)
 benchmarks to be exported by the crate. The test expects the entry point
 into the performance benchmarks to be named `main`. In other words, the
