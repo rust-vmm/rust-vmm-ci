@@ -132,8 +132,8 @@ The [Buildkite](https://buildkite.com) pipeline is the definition of tests to
 be run as part of the CI. It includes steps for running unit tests and linters
 (including coding style checks), and computing the coverage.
 
-Currently the tests can run on Linux `x86_64`, `aarch64` and `riscv64`
-(virtualized inside QEMU) hosts. Which hosts tests should be ran for is
+Currently the tests can run on Linux `x86_64`, `aarch64` and (virtualized inside QEMU)
+`riscv64` and `s390x` hosts. Which hosts tests should be ran for is
 determined by the `.platform` file in the repository root.
 
 Example of step that checks the build:
