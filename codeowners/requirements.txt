@@ -2,7 +2,7 @@
 # Install with: pip install -r requirements.txt
 
 # check_inactive_codeowners.py dependencies
-certifi==2025.10.5
+certifi==2026.10.19
 cffi==2.0.0
 charset-normalizer==3.4.3
 cryptography==46.0.5
